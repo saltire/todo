@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>linkdump :: saltire sable industries</title>
+		<link rel='stylesheet' href='{{ root }}static/style.css' />
+	</head>
+	<body class='pic'>
+		<div class='top'>
+			<div class='backg'></div>
+			<a class='rightlink' href='http://www.saltiresable.com'><img src='/saltiresable-small.png' alt='saltire sable.' /></a>
+		</div>
+		<h1 class='center'>linkdump.</h1>
+		<h2 class='center'>submit that shit.</h2>
+		<div class='linksmain'>
+	    	<form action='/dump' method='post'>
+	    		<input type='text' name='title' value='site name' maxlength='255' />
+	    		<input type='text' name='uri' value='http://' />
+	    		<input type='submit' value='dump' />
+	    	</form>
+			<div class='linkbox'>
+				<div class='backg'></div>
+{% if not links %}
+				No links found.
+{% else %}
+				<div class='linklist'>
+	{% for link in links %}
+        			<a href='{{ link.uri }}'>{{ link.title }}</a>
+    {% endfor %}
+    			</div>
+{% endif %}
+				<div class='pager'>
+				
+				</div>
+        	</div>
+        </div>
+    </body>
+</html>

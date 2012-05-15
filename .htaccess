@@ -1,0 +1,8 @@
+AddHandler fcgid-script .fcgi
+Options +FollowSymLinks
+ErrorDocument 500 "500 error."
+
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_URI} !(index.fcgi)
+RewriteRule ^(.*)$ index.fcgi/$1 [QSA,L]
