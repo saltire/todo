@@ -1,0 +1,56 @@
+from oauth2 import OAuth2
+
+import requests
+
+
+class GTasks:
+    def __init__(self, client_id, client_secret, callback_uri):
+        site = 'https://accounts.google.com'
+        auth_uri = '/o/oauth2/auth'
+        token_uri = '/o/oauth2/token'
+        self.handler = OAuth2(client_id, client_secret, site, callback_uri, auth_uri, token_uri)
+        
+        self.tasks_auth_uri = 'https://www.googleapis.com/auth/tasks'
+        self.tasks_api_uri = 'https://www.googleapis.com/tasks/v1'
+        
+    
+    def get_authorize_uri(self):
+        return self.handler.authorize_url(self.tasks_auth_uri, response_type='code')
+        
+
+    def get_access_token(self, code):
+        response = self.handler.get_token(code, grant_type='authorization_code')
+        return response
+    
+    
+    def set_access_token(self, token):
+        self.token = token
+    
+    
+    def do_request(self, method, tasklist='', task='', params={}, body=''):
+        methods = {
+            'tasks.list': ('get', 'lists/{0}/tasks'),
+            'tasks.get': ('get', 'lists/{0}/tasks/{1}'),
+            'tasks.insert': ('post', 'lists/{0}/tasks', True),
+            'tasks.update': ('put', 'lists/{0}/tasks/{1}', True),
+            'tasks.delete': ('delete', 'lists/{0}/tasks/{1}'),
+            'tasks.clear': ('post', 'lists/{0}/clear'),
+            'tasks.move': ('post', 'lists/{0}/tasks/{1}/move'),
+            'tasks.patch': ('patch', 'lists/{0}/tasks/{1}', True),
+            'tasklists.list': ('get', 'users/@me/lists'),
+            'tasklists.get': ('get', 'users/@me/lists/{0}'),
+            'tasklists.insert': ('post', 'users/@me/lists', True),
+            'tasklists.update': ('put', 'users/@me/lists/{0}', True),
+            'tasklists.delete': ('delete', 'users/@me/lists/{0}'),
+            'tasklists.patch': ('patch', 'users/@me/lists/{0}', True),
+            }
+        
+        httpmethod, uri = methods.get(method)
+        uri = '{0}/{1}'.format(self.tasks_api_uri, uri.format(tasklist, task))
+        
+        if not self.token:
+            return False
+        params['access_token'] = self.token
+        
+        return getattr(requests, httpmethod)(uri, params=params, data=body).json
+        
