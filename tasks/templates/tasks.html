@@ -1,0 +1,54 @@
+{% macro draw_task(task) %}
+	{% if task['completed'] %}
+	<div class='task completed'>
+		<input type='checkbox' checked />
+	{% else %}
+	<div class='task'>
+		<input type='checkbox' />						
+	{% endif %}
+		<span class='tasktitle'>{{ task['title'] }}</span>
+		<span class='tasknotes'>{{ task['notes'] }}</span>
+	</div>
+	{% if task['children'] %}
+	<ul>
+		{% for child in task['children'] %}
+		<li>
+			{{ draw_task(child) }}
+		</li>
+		{% endfor %}
+	</ul>
+	{% endif %}
+{% endmacro %}
+
+<!doctype html>
+<html>
+	<head>
+		<title>to do :: saltire sable industries</title>
+		<link rel='stylesheet' type='text/css' href='http://www.saltiresable.com/style.css' />
+		<link rel='stylesheet' type='text/css' href='/static/tasks.css' />
+	</head>
+	<body class='pic'>
+		<div id='top'>
+			<div class='backg'></div>
+			<a class='rightlink' href='http://www.saltiresable.com'><img src='http://www.saltiresable.com/saltiresable-small.png' alt='saltire sable.' /></a>
+		</div>
+		<h1 class='center'>to do.</h1>
+		<h2 class='center'>cross 'em out.</h2>
+		<div class='tasklists'>
+{% for tasklist in lists %}
+			<div class='tasklist'>
+				<div class='backg'></div>
+				<h2>{{ tasklist['title'] }}</h2>
+				<ul>
+	{% for task in tasklist['items'] %}
+					<li>
+						{{ draw_task(task) }}
+					</li>
+	{% endfor %}
+				</ul>
+			</div>
+{% endfor %}
+		</div>
+	</body>
+</html>
+

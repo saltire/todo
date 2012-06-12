@@ -44,12 +44,20 @@ def index():
         return redirect(url_for('authorize'))
     gtasks.set_access_token(session['token'])
     
-    # get lists
-    lists = {}
-    for tlist in gtasks.do_request('tasklists.list')['items']:
-        lists[tlist['title']] = gtasks.do_request('tasks.list', tlist['id'])['items']
-        
-    return render_template('lists.html', lists=lists)
+    def get_child_tasks(tasks, rootid=None):
+        branch = []
+        for task in tasks:
+            if task.get('parent') == rootid:
+                task['children'] = get_child_tasks(tasks, task['id'])
+                branch.append(task)
+        return branch
+    
+    lists = []
+    for tasklist in gtasks.do_request('tasklists.list')['items']:
+        tasklist['items'] = get_child_tasks(gtasks.do_request('tasks.list', tasklist['id'])['items'])
+        lists.append(tasklist)
+    
+    return render_template('tasks.html', lists=lists)
     
 
 

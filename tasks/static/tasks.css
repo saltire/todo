@@ -1,0 +1,15 @@
+
+.tasklists { width: 600px; margin: auto; overflow-x: scroll; white-space: nowrap; }
+.tasklist { width: 500px; margin: 0 30px; padding: 15px; border: 1px dotted #f1f1da;
+	vertical-align: top; white-space: normal; position: relative; display: inline-block; }
+.tasklist h2 { border-bottom: 1px dotted #fff; margin: 0 10px 15px; font-size: 24px; text-align: center; }
+.tasklist ul { margin: 0; padding: 0; list-style-type: none; }
+.tasklist ul li { }
+.tasklist ul li .task { min-height: 20px; padding: 5px 10px; line-height: 20px; display: block; }
+.tasklist ul li .task:hover { background: #b3b3a1; outline: 1px dotted #fff; }
+.tasklist ul li .task.completed { opacity: 0.6; text-decoration: line-through; }
+.tasklist ul li .task input[type=checkbox] { margin-top: 5px; float: left; }
+.tasklist ul li .task span { margin-left: 25px; display: block; }
+.tasklist ul li .task .tasktitle { font-weight: bold; font-size: 16px; }
+.tasklist ul li .task .tasknotes { font-size: 12px; }
+.tasklist ul ul { margin-left: 25px; /*border-left: 1px solid #fff;*/ }
