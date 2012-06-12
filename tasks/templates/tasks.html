@@ -26,6 +26,9 @@
 		<title>to do :: saltire sable industries</title>
 		<link rel='stylesheet' type='text/css' href='http://www.saltiresable.com/style.css' />
 		<link rel='stylesheet' type='text/css' href='/static/tasks.css' />
+		<script type=text/javascript>var webroot = {{ request.script_root|tojson|safe }};</script>
+		<script type='text/javascript' src='/static/jquery-1.7.2.min.js'></script>
+		<script type='text/javascript' src='/static/script.js'></script>
 	</head>
 	<body class='pic'>
 		<div id='top'>
@@ -34,20 +37,30 @@
 		</div>
 		<h1 class='center'>to do.</h1>
 		<h2 class='center'>cross 'em out.</h2>
-		<div class='tasklists'>
-{% for tasklist in lists %}
-			<div class='tasklist'>
-				<div class='backg'></div>
-				<h2>{{ tasklist['title'] }}</h2>
-				<ul>
-	{% for task in tasklist['items'] %}
-					<li>
-						{{ draw_task(task) }}
-					</li>
-	{% endfor %}
-				</ul>
+		<div class='taskmain'>
+			<div class='tasknav'>
+				<div class='buttons'>
+					<a class='prev' href='#'>prev</a>
+					<a class='next' href='#'>next</a>
+				</div>
 			</div>
+			<div class='tasklist-view'>
+				<div class='tasklists'>
+{% for tasklist in lists %}
+					<div class='tasklist'>
+						<div class='backg'></div>
+						<h2>{{ tasklist['title'] }}</h2>
+						<ul>
+	{% for task in tasklist['items'] %}
+							<li>
+						{{ draw_task(task) }}
+							</li>
+	{% endfor %}
+						</ul>
+					</div>
 {% endfor %}
+				</div>
+			</div>
 		</div>
 	</body>
 </html>

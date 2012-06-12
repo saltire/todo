@@ -1,7 +1,7 @@
 import time
 
 from flask import Flask
-from flask import redirect, render_template, request, session, url_for
+from flask import jsonify, redirect, render_template, request, session, url_for
 
 from gtasks import GTasks
 
@@ -58,6 +58,21 @@ def index():
         lists.append(tasklist)
     
     return render_template('tasks.html', lists=lists)
+
+
+@app.route('/_update_task')
+def update():
+    tasklist = request.args.get('tasklist')
+    task = request.args.get('task')
+    
+    fields = {}
+    for field in ('title', 'updated', 'completed'):
+        value = request.args.get(field)
+        if value is not None:
+            fields[field] = value
+    
+    response = gtasks.do_request('tasks.update', tasklist, task, fields)
+    return jsonify(response)
     
 
 
