@@ -1,6 +1,6 @@
 {% macro draw_task(task) %}
 	{% if task['completed'] %}
-	<div class='task completed'>
+	<div class='task completed' id='task-{{ task["id"] }}'>
 		<input type='checkbox' checked />
 	{% else %}
 	<div class='task'>
@@ -47,7 +47,7 @@
 			<div class='tasklist-view'>
 				<div class='tasklists'>
 {% for tasklist in lists %}
-					<div class='tasklist'>
+					<div class='tasklist' id='tasklist-{{ tasklist["id"] }}'>
 						<div class='backg'></div>
 						<h2>{{ tasklist['title'] }}</h2>
 						<ul>

@@ -29,28 +29,31 @@ class GTasks:
     
     def do_request(self, method, tasklist='', task='', params={}, body=''):
         methods = {
-            'tasks.list': ('get', 'lists/{0}/tasks'),
-            'tasks.get': ('get', 'lists/{0}/tasks/{1}'),
+            'tasks.list': ('get', 'lists/{0}/tasks', False),
+            'tasks.get': ('get', 'lists/{0}/tasks/{1}', False),
             'tasks.insert': ('post', 'lists/{0}/tasks', True),
             'tasks.update': ('put', 'lists/{0}/tasks/{1}', True),
-            'tasks.delete': ('delete', 'lists/{0}/tasks/{1}'),
-            'tasks.clear': ('post', 'lists/{0}/clear'),
-            'tasks.move': ('post', 'lists/{0}/tasks/{1}/move'),
+            'tasks.delete': ('delete', 'lists/{0}/tasks/{1}', False),
+            'tasks.clear': ('post', 'lists/{0}/clear', False),
+            'tasks.move': ('post', 'lists/{0}/tasks/{1}/move', False),
             'tasks.patch': ('patch', 'lists/{0}/tasks/{1}', True),
-            'tasklists.list': ('get', 'users/@me/lists'),
-            'tasklists.get': ('get', 'users/@me/lists/{0}'),
+            'tasklists.list': ('get', 'users/@me/lists', False),
+            'tasklists.get': ('get', 'users/@me/lists/{0}', False),
             'tasklists.insert': ('post', 'users/@me/lists', True),
             'tasklists.update': ('put', 'users/@me/lists/{0}', True),
-            'tasklists.delete': ('delete', 'users/@me/lists/{0}'),
+            'tasklists.delete': ('delete', 'users/@me/lists/{0}', False),
             'tasklists.patch': ('patch', 'users/@me/lists/{0}', True),
             }
         
-        httpmethod, uri = methods.get(method)
+        httpmethod, uri, body_req = methods.get(method)
         uri = '{0}/{1}'.format(self.tasks_api_uri, uri.format(tasklist, task))
         
         if not self.token:
             return False
         params['access_token'] = self.token
         
+        print '>>>', httpmethod, uri
+        print getattr(requests, httpmethod)(uri, params=params, data=body).json
+        print '<<<'
         return getattr(requests, httpmethod)(uri, params=params, data=body).json
         

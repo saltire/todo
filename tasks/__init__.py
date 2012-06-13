@@ -60,19 +60,16 @@ def index():
     return render_template('tasks.html', lists=lists)
 
 
-@app.route('/_update_task')
+@app.route('/_update_task', methods=['put'])
 def update():
     tasklist = request.args.get('tasklist')
     task = request.args.get('task')
     
-    fields = {}
-    for field in ('title', 'updated', 'completed'):
-        value = request.args.get(field)
-        if value is not None:
-            fields[field] = value
+    fields = ('title', 'updated', 'completed')
+    data = {field: request.args[field] for field in fields if field in request.args}
     
-    response = gtasks.do_request('tasks.update', tasklist, task, fields)
-    return jsonify(response)
+    response = gtasks.do_request('tasks.update', tasklist, task, data)
+    return response
     
 
 
