@@ -2,16 +2,35 @@ from oauth2 import OAuth2
 
 import requests
 
+import json
+
 
 class GTasks:
+    
+    tasks_auth_uri = 'https://www.googleapis.com/auth/tasks'
+    tasks_api_uri = 'https://www.googleapis.com/tasks/v1'
+    methods = {
+        'tasks.list': ('get', 'lists/{0}/tasks', False),
+        'tasks.get': ('get', 'lists/{0}/tasks/{1}', False),
+        'tasks.insert': ('post', 'lists/{0}/tasks', True),
+        'tasks.update': ('put', 'lists/{0}/tasks/{1}', True),
+        'tasks.delete': ('delete', 'lists/{0}/tasks/{1}', False),
+        'tasks.clear': ('post', 'lists/{0}/clear', False),
+        'tasks.move': ('post', 'lists/{0}/tasks/{1}/move', False),
+        'tasks.patch': ('patch', 'lists/{0}/tasks/{1}', True),
+        'tasklists.list': ('get', 'users/@me/lists', False),
+        'tasklists.get': ('get', 'users/@me/lists/{0}', False),
+        'tasklists.insert': ('post', 'users/@me/lists', True),
+        'tasklists.update': ('put', 'users/@me/lists/{0}', True),
+        'tasklists.delete': ('delete', 'users/@me/lists/{0}', False),
+        'tasklists.patch': ('patch', 'users/@me/lists/{0}', True),
+        }
+        
     def __init__(self, client_id, client_secret, callback_uri):
         site = 'https://accounts.google.com'
         auth_uri = '/o/oauth2/auth'
         token_uri = '/o/oauth2/token'
         self.handler = OAuth2(client_id, client_secret, site, callback_uri, auth_uri, token_uri)
-        
-        self.tasks_auth_uri = 'https://www.googleapis.com/auth/tasks'
-        self.tasks_api_uri = 'https://www.googleapis.com/tasks/v1'
         
     
     def get_authorize_uri(self):
@@ -28,32 +47,22 @@ class GTasks:
     
     
     def do_request(self, method, tasklist='', task='', params={}, body=''):
-        methods = {
-            'tasks.list': ('get', 'lists/{0}/tasks', False),
-            'tasks.get': ('get', 'lists/{0}/tasks/{1}', False),
-            'tasks.insert': ('post', 'lists/{0}/tasks', True),
-            'tasks.update': ('put', 'lists/{0}/tasks/{1}', True),
-            'tasks.delete': ('delete', 'lists/{0}/tasks/{1}', False),
-            'tasks.clear': ('post', 'lists/{0}/clear', False),
-            'tasks.move': ('post', 'lists/{0}/tasks/{1}/move', False),
-            'tasks.patch': ('patch', 'lists/{0}/tasks/{1}', True),
-            'tasklists.list': ('get', 'users/@me/lists', False),
-            'tasklists.get': ('get', 'users/@me/lists/{0}', False),
-            'tasklists.insert': ('post', 'users/@me/lists', True),
-            'tasklists.update': ('put', 'users/@me/lists/{0}', True),
-            'tasklists.delete': ('delete', 'users/@me/lists/{0}', False),
-            'tasklists.patch': ('patch', 'users/@me/lists/{0}', True),
-            }
-        
-        httpmethod, uri, body_req = methods.get(method)
-        uri = '{0}/{1}'.format(self.tasks_api_uri, uri.format(tasklist, task))
-        
         if not self.token:
-            return False
-        params['access_token'] = self.token
+            raise Exception('Not authenticated!')
         
-        print '>>>', httpmethod, uri
-        print getattr(requests, httpmethod)(uri, params=params, data=body).json
+        httpmethod, uri, body_req = self.methods.get(method)
+        uri = '{0}/{1}'.format(self.tasks_api_uri, uri.format(tasklist, task))
+        params['access_token'] = self.token
+        body = json.dumps(body) if body_req else None
+        headers = {'content-type': 'application/json'} if body_req else {}
+        
+        response = getattr(requests, httpmethod)(uri, params=params, data=body, headers=headers).json
+        print '>>>', httpmethod, uri, params, body
+        print response
         print '<<<'
-        return getattr(requests, httpmethod)(uri, params=params, data=body).json
+        
+        if 'error' in response:
+            raise Exception('error {0}: {1}'.format(response['error']['code'], response['error']['message']))
+        return response
+        
         

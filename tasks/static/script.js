@@ -30,13 +30,14 @@ $(function() {
 		} else {
 			$tasks.removeClass('completed').find('input:checkbox').prop('checked', false);
 		}
+
 		$.ajax({
 			url: webroot + '/_update_task',
 			type: 'put',
 			data: {
 				tasklist: $(this).closest('.tasklist').attr('id').slice(9),
 				task: $(this).closest('.task').attr('id').slice(5),
-				completed: 
+				completed: new Date().toISOString(),
 			},
 			success: function(data) {
 				alert(data);

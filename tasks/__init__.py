@@ -62,13 +62,13 @@ def index():
 
 @app.route('/_update_task', methods=['put'])
 def update():
-    tasklist = request.args.get('tasklist')
-    task = request.args.get('task')
+    tasklist = request.form.get('tasklist')
+    task = request.form.get('task')
     
     fields = ('title', 'updated', 'completed')
-    data = {field: request.args[field] for field in fields if field in request.args}
+    body = {field: request.form[field] for field in fields if field in request.form}
     
-    response = gtasks.do_request('tasks.update', tasklist, task, data)
+    response = gtasks.do_request('tasks.update', tasklist, task, body=body)
     return response
     
 
