@@ -20,8 +20,6 @@ gtasks = GTasks(client_id, client_secret, callback_uri)
 def callback():
     code = request.args.get('code', '')
     
-    session['test'] = 'CALLBACK'
-    
     response = gtasks.get_access_token(code)
     if 'access_token' in response:
         # store token to make requests with it
@@ -34,16 +32,11 @@ def callback():
 
 @app.route('/')
 def index():
-    print session.items()
-    # check if logged in
+   # check if logged in
     if not session.get('token') or time.time() > session.get('expiry', 0):
         return redirect(gtasks.get_authorize_uri())
     
     gtasks.set_access_token(session['token'])
-    
-    session['test'] = '___TEST___'
-    print 'set session test'
-    print session.items()
     
     def get_child_tasks(tasks, rootid=None):
         branch = []
@@ -59,7 +52,10 @@ def index():
         tasklist['items'] = get_child_tasks(gtasks.do_request('tasks.list', tasklist['id'])['items'])
         lists.append(tasklist)
     
-    return render_template('tasks.html', lists=lists)
+    session.modified = True
+    print session.items()
+    print 'ROOT', url_for('index', _external=True)
+    return render_template('tasks.html', lists=lists, root=url_for('index'))
 
 
 @app.route('/_update_task', methods=['put', 'get'])
@@ -71,14 +67,18 @@ def update():
     task = (task for task in tasklist['items'] if task['id'] == request.form.get('task'))[0]
     
     fields = ('title', 'updated', 'completed')
-    task.update({field: request.form[field] for field in fields if field in request.form})
+    task.update(dict(field, request.form[field]) for field in fields if field in request.form)
     
     response = gtasks.do_request('tasks.update', tasklist['id'], task['id'], body=task)
     return response
     
 
 
-if __name__ == '__main__':
-    app.debug = True
-    app.run()
+if __name__ == '__main__':    
+    import logging
+    file_handler = logging.FileHandler('errorz.log')
+    file_handler.setLevel(logging.WARNING)
+    app.logger.addHandler(file_handler)    
+    
+    app.run('applestore', 5000)
     
