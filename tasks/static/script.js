@@ -23,17 +23,20 @@ $(function() {
 		$('.tasklists').animate({left: oper + viewwidth + 'px'}, refresh_view);
 	});
 	
+	// reset form elements in case of page reload
+	$('.task.completed input:checkbox').prop('checked', true);
+	$('.task:not(".completed") input:checkbox').prop('checked', false);
+	
 	$('.task input:checkbox').change(function() {
-		var $tasks = $(this).closest('li').find('.task');
 		if ($(this).prop('checked')) {
-			$tasks.addClass('completed').find('input:checkbox').prop('checked', true);
+			$(this).closest('li').find('.task').addClass('completed').find('input:checkbox').prop('checked', true);
 		} else {
-			$tasks.removeClass('completed').find('input:checkbox').prop('checked', false);
+			$(this).parents('.tasklist li').find('.task').removeClass('completed').find('input:checkbox').prop('checked', false);
 		}
 
 		$.ajax({
 			url: webroot + '/_update_task',
-			type: 'put',
+			type: 'get',
 			data: {
 				tasklist: $(this).closest('.tasklist').attr('id').slice(9),
 				task: $(this).closest('.task').attr('id').slice(5),
