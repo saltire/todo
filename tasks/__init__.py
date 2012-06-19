@@ -9,10 +9,10 @@ from gtasks import GTasks
 app = Flask(__name__)
 app.secret_key = '\xf9\xeeV\x06~T\xc78j1C]\xfb\xddx\xad\xfb\xc8\xc5\x1b[g\x13%'
 
+# google tasks specific stuff
 client_id = '311996974047.apps.googleusercontent.com'
 client_secret = 'w-OafbM5XFHXEyctLaxjZ5W2'
 callback_uri = 'http://localhost:5000/callback'
-
 gtasks = GTasks(client_id, client_secret, callback_uri)
 
 
@@ -32,7 +32,7 @@ def callback():
 
 @app.route('/')
 def index():
-   # check if logged in
+    # check if token exists and has not expired
     if not session.get('token') or time.time() > session.get('expiry', 0):
         return redirect(gtasks.get_authorize_uri())
     
@@ -46,39 +46,32 @@ def index():
                 branch.append(task)
         return branch
     
+    # build a tree of tasks for each tasklist
     lists = []
-    session['lists'] = gtasks.do_request('tasklists.list')['items']
-    for tasklist in session['lists']:
+    for tasklist in gtasks.do_request('tasklists.list')['items']:
         tasklist['items'] = get_child_tasks(gtasks.do_request('tasks.list', tasklist['id'])['items'])
         lists.append(tasklist)
     
-    session.modified = True
-    print session.items()
-    print 'ROOT', url_for('index', _external=True)
     return render_template('tasks.html', lists=lists, root=url_for('index'))
 
 
-@app.route('/_update_task', methods=['put', 'get'])
+@app.route('/_update_task', methods=['patch'])
 def update():
-    print "vvvvv"
-    print session.items()
-    print "^^^^^"
-    tasklist = (tasklist for tasklist in session['lists'] if tasklist['id'] == request.form.get('tasklist'))[0]    
-    task = (task for task in tasklist['items'] if task['id'] == request.form.get('task'))[0]
+    fields = ('title', 'updated', 'completed', 'status')
+    # older syntax for < 2.7 compatibility
+    patch = dict((field, request.form[field]) for field in fields if field in request.form)
     
-    fields = ('title', 'updated', 'completed')
-    task.update(dict(field, request.form[field]) for field in fields if field in request.form)
+    # javascript null needs to be passed as None - requests does not parse this properly?
+    for field, value in patch.iteritems():
+        if value in ('null', ''):
+            patch[field] = None
     
-    response = gtasks.do_request('tasks.update', tasklist['id'], task['id'], body=task)
-    return response
+    response = gtasks.do_request('tasks.patch', request.form.get('tasklist'), request.form.get('task'), body=patch)
+    return repr(response)
     
 
 
 if __name__ == '__main__':    
-    import logging
-    file_handler = logging.FileHandler('errorz.log')
-    file_handler.setLevel(logging.WARNING)
-    app.logger.addHandler(file_handler)    
-    
-    app.run('applestore', 5000)
+    app.debug = True
+    app.run()
     

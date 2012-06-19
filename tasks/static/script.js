@@ -28,20 +28,30 @@ $(function() {
 	$('.task:not(".completed") input:checkbox').prop('checked', false);
 	
 	$('.task input:checkbox').change(function() {
+		var data = {
+			tasklist: $(this).closest('.tasklist').attr('id').slice(9),
+			task: $(this).closest('.task').attr('id').slice(5),
+		}
+		
 		if ($(this).prop('checked')) {
 			$(this).closest('li').find('.task').addClass('completed').find('input:checkbox').prop('checked', true);
+			
+			data['completed'] = new Date().toISOString();
+			data['status'] = 'completed';
+		
 		} else {
 			$(this).parents('.tasklist li').find('.task').removeClass('completed').find('input:checkbox').prop('checked', false);
+			
+			data['completed'] = null;
+			data['status'] = 'needsAction';
 		}
+		
+		
 
 		$.ajax({
 			url: webroot + '/_update_task',
-			type: 'get',
-			data: {
-				tasklist: $(this).closest('.tasklist').attr('id').slice(9),
-				task: $(this).closest('.task').attr('id').slice(5),
-				completed: new Date().toISOString(),
-			},
+			type: 'patch',
+			data: data,
 			success: function(data) {
 				alert(data);
 			}
