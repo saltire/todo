@@ -20,13 +20,15 @@ $(function() {
 	
 	$('.tasknav a').click(false).click(function() {
 		var oper = $(this).hasClass('next') ? '-=' : '+=';
-		$('.tasklists').animate({left: oper + viewwidth + 'px'}, refresh_view);
+		$('.tasklists').animate({left: oper + viewwidth + 'px'}, 250, refresh_view);
 	});
 	
 	// reset form elements in case of page reload
 	$('.task.completed input:checkbox').prop('checked', true);
 	$('.task:not(".completed") input:checkbox').prop('checked', false);
 	
+	
+	// check boxes
 	$('.task input:checkbox').change(function() {
 		var data = {
 			tasklist: $(this).closest('.tasklist').attr('id').slice(9),
@@ -45,8 +47,6 @@ $(function() {
 			data['completed'] = null;
 			data['status'] = 'needsAction';
 		}
-		
-		
 
 		$.ajax({
 			url: webroot + '/_update_task',
@@ -57,5 +57,50 @@ $(function() {
 			}
 		});
 	});
+	
+	
+	// sort list
+	$('.tasklist ul').sortable({
+		revert: 40,
+		containment: 'parent',
+		tolerance: 'pointer',
+	}).bind('sortupdate', function(e, ui) {
+		e.stopPropagation();
+		alert(ui.item.children('.task').attr('id'));
+		
+		var data = {
+			tasklist: ui.item.closest('.tasklist').attr('id').slice(9),
+			task: ui.item.children('.task').attr('id').slice(5),
+		}
+		
+		if (ui.item.prev().children('.task').length) {
+			data['previous'] = ui.item.prev().children('.task').attr('id').slice(5);
+		}
+		
+		$.ajax({
+			url: webroot + '/_move_task',
+			type: 'post',
+			data: data,
+			success: function(data) {
+				alert(data);
+			}
+		});
+	});
+	
+	
+	/*
+	// split list
+	$('.task').hover(function() {
+		$('<a class="split" />').appendTo(this).click(function() {
+			
+		}, false)
+	}, function() {
+		
+	});
+	*/
+	
+	
+	
+	
 	
 });

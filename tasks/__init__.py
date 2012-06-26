@@ -56,7 +56,7 @@ def index():
 
 
 @app.route('/_update_task', methods=['patch'])
-def update():
+def update_task():
     fields = ('title', 'updated', 'completed', 'status')
     # older syntax for < 2.7 compatibility
     patch = dict((field, request.form[field]) for field in fields if field in request.form)
@@ -68,7 +68,13 @@ def update():
     
     response = gtasks.do_request('tasks.patch', request.form.get('tasklist'), request.form.get('task'), body=patch)
     return repr(response)
-    
+
+
+@app.route('/_move_task', methods=['post'])
+def move_task():
+    params = {'previous': request.form['previous']} if 'previous' in request.form else {}
+    response = gtasks.do_request('tasks.move', request.form.get('tasklist'), request.form.get('task'), params=params)
+    return repr(response)
 
 
 if __name__ == '__main__':    

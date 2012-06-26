@@ -53,16 +53,21 @@ class GTasks:
         httpmethod, uri, body_req = self.methods.get(method)
         uri = '{0}/{1}'.format(self.tasks_api_uri, uri.format(tasklist, task))
         params['access_token'] = self.token
-        body = json.dumps(body) if body_req else None
-        headers = {'content-type': 'application/json'} if body_req else {}
+        headers = {}
+        if body_req:
+            headers['content-type'] = 'application/json'
+            body = json.dumps(body)
+        if httpmethod == 'post':
+            headers['content-length'] = str(len(body))
         
-        response = getattr(requests, httpmethod)(uri, params=params, data=body, headers=headers).json
-        print '>>>', httpmethod, uri, params, body
+        response = getattr(requests, httpmethod)(uri, params=params, data=body, headers=headers)
+        rdata = response.json
+        print '>>>', httpmethod, response.url, params, body
         print response
         print '<<<'
         
-        if 'error' in response:
-            raise Exception('error {0}: {1}'.format(response['error']['code'], response['error']['message']))
-        return response
+        if 'error' in rdata:
+            raise Exception('error {0}: {1}'.format(rdata['error']['code'], rdata['error']['message']))
+        return rdata
         
         
