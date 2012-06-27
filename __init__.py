@@ -9,10 +9,12 @@ from gtasks import GTasks
 app = Flask(__name__)
 app.secret_key = '\xf9\xeeV\x06~T\xc78j1C]\xfb\xddx\xad\xfb\xc8\xc5\x1b[g\x13%'
 
+print app.config['SERVER_NAME']
+
 # google tasks specific stuff
 client_id = '311996974047.apps.googleusercontent.com'
 client_secret = 'w-OafbM5XFHXEyctLaxjZ5W2'
-callback_uri = 'http://localhost:5000/callback'
+callback_uri = 'http://www.saltiresable.com/tasks/callback'
 gtasks = GTasks(client_id, client_secret, callback_uri)
 
 
@@ -78,7 +80,7 @@ def move_task():
     return repr(response)
 
 
-if __name__ == '__main__':    
+if __name__ == '__main__':  
     app.debug = True
     app.run()
     
