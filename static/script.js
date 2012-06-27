@@ -60,13 +60,14 @@ $(function() {
 	
 	
 	// sort list
-	$('.tasklist ul').sortable({
-		revert: 40,
-		containment: 'parent',
-		tolerance: 'pointer',
+	
+	$('.tasklists > .tasklist > ul').nestedSortable({
+		listType: 'ul',
+		items: 'li',
+		toleranceElement: '> div',
+		handle: '> div',
 	}).bind('sortupdate', function(e, ui) {
 		e.stopPropagation();
-		alert(ui.item.children('.task').attr('id'));
 		
 		var data = {
 			tasklist: ui.item.closest('.tasklist').attr('id').slice(9),

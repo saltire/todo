@@ -9,8 +9,8 @@
 .tasklist-view { width: 600px; margin: auto; overflow: hidden; }
 .tasklists { white-space: nowrap; position: relative; left: 0; }
 
-.tasklist { width: 500px; margin: 0 34px; padding: 15px; border: 1px dotted #f1f1da;
-	vertical-align: top; white-space: normal; position: relative; display: inline-block; }
+.tasklist { width: 500px; margin: 0 34px; padding: 20px 15px; border: 1px dotted #f1f1da;
+	vertical-align: top; white-space: normal; overflow: hidden; position: relative; display: inline-block; }
 .tasklist h2 { border-bottom: 1px dotted #fff; margin: 0 10px 15px; font-size: 24px; text-align: center; }
 .tasklist ul { margin: 0; padding: 0; list-style-type: none; }
 .tasklist ul li { }
