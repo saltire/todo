@@ -16,6 +16,18 @@ $(function() {
 		}
 	}
 	
+	function do_request(method, type, data) {
+		$.ajax({
+			url: webroot + '/_' + method,
+			type: type,
+			data: data,
+			success: function(resp) {
+				alert(resp);
+			}
+		});
+		
+	}
+	
 	refresh_view();
 	
 	$('.tasknav a').click(false).click(function() {
@@ -48,19 +60,24 @@ $(function() {
 			data['status'] = 'needsAction';
 		}
 
-		$.ajax({
-			url: webroot + '/_update_task',
-			type: 'patch',
-			data: data,
-			success: function(data) {
-				alert(data);
+		do_request('update_task', 'patch', data);
+	});
+	
+	
+	// edit text
+	$('.tasktitle').editable({
+		onSubmit: function(content) {
+			var data = {
+				tasklist: this.closest('.tasklist').attr('id').slice(9),
+				task: this.closest('.task').attr('id').slice(5),
+				title: content.current,
 			}
-		});
+			do_request('update_task', 'patch', data);
+		},
 	});
 	
 	
 	// sort list
-	
 	$('.tasklists > .tasklist > ul').nestedSortable({
 		listType: 'ul',
 		items: 'li',
@@ -83,14 +100,7 @@ $(function() {
 			data['parent'] = ui.item.parent().siblings('.task').attr('id').slice(5);
 		}
 		
-		$.ajax({
-			url: webroot + '/_move_task',
-			type: 'post',
-			data: data,
-			success: function(data) {
-				alert(data);
-			}
-		});
+		do_request('move_task', 'post', data);
 	});
 	
 	
