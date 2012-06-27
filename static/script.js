@@ -74,8 +74,13 @@ $(function() {
 			task: ui.item.children('.task').attr('id').slice(5),
 		}
 		
+		// find the previous task at this level, if any
 		if (ui.item.prev().children('.task').length) {
 			data['previous'] = ui.item.prev().children('.task').attr('id').slice(5);
+		}
+		// find the parent task, if any
+		if (ui.item.parents('.tasklist li').length) {
+			data['parent'] = ui.item.parent().siblings('.task').attr('id').slice(5);
 		}
 		
 		$.ajax({

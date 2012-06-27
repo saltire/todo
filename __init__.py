@@ -72,7 +72,8 @@ def update_task():
 
 @app.route('/_move_task', methods=['post'])
 def move_task():
-    params = {'previous': request.form['previous']} if 'previous' in request.form else {}
+    fields = ('previous', 'parent')
+    params = dict((field, request.form[field]) for field in fields if field in request.form)
     response = gtasks.do_request('tasks.move', request.form.get('tasklist'), request.form.get('task'), params=params)
     return repr(response)
 
