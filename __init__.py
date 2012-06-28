@@ -52,7 +52,9 @@ def index():
         tasklist['items'] = get_child_tasks(gtasks.do_request('tasks.list', tasklist['id'])['items'])
         lists.append(tasklist)
     
-    return render_template('tasks.html', lists=lists, root=url_for('index'))
+    root = url_for('index').replace('/index.fcgi', '')
+    
+    return render_template('tasks.html', lists=lists, root=root)
 
 
 @app.route('/_add_task', methods=['post'])
