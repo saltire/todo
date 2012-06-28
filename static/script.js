@@ -4,6 +4,18 @@ $(function() {
 	var listcount = $('.tasklist').length;
 	var listpos;
 
+	function do_request(method, type, data) {
+		// send an ajax request to tasks api
+		$.ajax({
+			url: webroot + '/_' + method,
+			type: type,
+			data: data,
+			success: function(resp) {
+				//alert(resp);
+			}
+		});
+	}
+	
 	function refresh_view() {
 		// show or hide nav buttons, change any other effects after list switch
 		listpos = -parseInt($('.tasklists').css('left')) / viewwidth;
@@ -16,6 +28,7 @@ $(function() {
 		}
 	}
 	
+
 	// send a request to flask, and optionally pass its response to a callback
 	function do_request(method, type, data, callback) {
 		$.ajax({
@@ -62,7 +75,7 @@ $(function() {
 							do_request('add_task', 'post', data, function(resp) {
 								$task.attr('id', 'task-' + resp.id);
 							});
-							$task.find('input:checkbox').change(toggle_checked);
+							$task.find('input:checkbox').change(toggle_checkboxes);
 						}
 					}
 				}
@@ -96,8 +109,42 @@ $(function() {
 	$('.task:not(".completed") input:checkbox').prop('checked', false);
 	
 	
-	// check off task
-	$('.task input:checkbox').change(toggle_checked);
+	// check boxes
+	$('.task input:checkbox').change(toggle_checkboxes);
+			
+	function toggle_checkboxes(e) {
+		// find out what other tasks' statuses are affected by this and submit them
+		if ($(this).prop('checked')) {
+			$(this).closest('li').find('.task').addClass('completed').find('input:checkbox').each(function() {
+				$(this).prop('checked', true);
+				set_check_status($(this));
+			});
+		
+		} else {
+			$(this).parents('.tasklist li').find('.task').removeClass('completed').find('input:checkbox').each(function() {
+				$(this).prop('checked', false);
+				set_check_status($(this));
+			})
+		}
+	});
+
+	function set_check_status($checkbox) {
+		// submit the task status to the api
+		var data = {
+			tasklist: $checkbox.closest('.tasklist').attr('id').slice(9),
+			task: $checkbox.closest('.task').attr('id').slice(5),
+		}
+		
+		if ($checkbox.prop('checked')) {
+			data['completed'] = new Date().toISOString();
+			data['status'] = 'completed';
+		} else {
+			data['completed'] = null;
+			data['status'] = 'needsAction';
+		}
+		
+		do_request('update_task', 'patch', data);
+	}
 	
 	
 	// add task
@@ -154,29 +201,6 @@ $(function() {
 		
 	});
 	*/
-	
-	function toggle_checked(e) {
-		var data = {
-			tasklist: $(this).closest('.tasklist').attr('id').slice(9),
-			task: $(this).closest('.task').attr('id').slice(5),
-		}
-		
-		if ($(this).prop('checked')) {
-			$(this).closest('li').find('.task').addClass('completed').find('input:checkbox').prop('checked', true);
-			
-			data['completed'] = new Date().toISOString();
-			data['status'] = 'completed';
-		
-		} else {
-			$(this).parents('.tasklist li').find('.task').removeClass('completed').find('input:checkbox').prop('checked', false);
-			
-			data['completed'] = null;
-			data['status'] = 'needsAction';
-		}
-
-		do_request('update_task', 'patch', data);
-	}
-	
 	
 	
 	
