@@ -47,7 +47,7 @@ class GTasks:
     
     
     def do_request(self, method, tasklist='', task='', params={}, body=''):
-        if not self.token:
+        if not getattr(self, 'token'):
             raise Exception('Not authenticated!')
         
         httpmethod, uri, body_req = self.methods.get(method)

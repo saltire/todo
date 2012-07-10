@@ -30,6 +30,7 @@ $(function() {
 	
 	refresh_view();
 	
+	// animate horizontal paging between lists
 	$('.tasknav a').click(false).click(function() {
 		var oper = $(this).hasClass('next') ? '-=' : '+=';
 		$('.tasklists').animate({left: oper + viewwidth + 'px'}, 250, refresh_view);
@@ -65,13 +66,20 @@ $(function() {
 	
 	
 	// edit text
-	$('.tasktitle').editable({
+	$('.tasktitle, .tasknotes').editable({
 		onSubmit: function(content) {
 			var data = {
 				tasklist: this.closest('.tasklist').attr('id').slice(9),
 				task: this.closest('.task').attr('id').slice(5),
-				title: content.current,
 			}
+
+			if (this.hasClass('tasktitle')) {
+				data['title'] = content.current;
+				
+			} else if (this.hasClass('tasknotes')) {
+				data['notes'] = content.current;
+			}
+			
 			do_request('update_task', 'patch', data);
 		},
 	});

@@ -59,7 +59,7 @@ def index():
 
 @app.route('/_update_task', methods=['patch'])
 def update_task():
-    fields = ('title', 'updated', 'completed', 'status')
+    fields = ('title', 'notes', 'updated', 'completed', 'status')
     # older syntax for < 2.7 compatibility
     patch = dict((field, request.form[field]) for field in fields if field in request.form)
     
