@@ -7,7 +7,9 @@
 		<input type='checkbox' />						
 	{% endif %}
 		<span class='tasktitle'>{{ task['title'] }}</span>
+	{% if task['notes'] %}
 		<span class='tasknotes'>{{ task['notes'] }}</span>
+	{% endif %}
 	</div>
 	{% if task['children'] %}
 	<ul>
@@ -53,7 +55,9 @@
 {% for tasklist in lists %}
 					<div id='tasklist-{{ tasklist["id"] }}' class='tasklist'>
 						<div class='backg'></div>
-						<h2>{{ tasklist['title'] }}</h2>
+						<h2>{{ tasklist['title'] }}
+							<a class='add' href='#'>add</a>
+						</h2>
 						<ul>
 	{% for task in tasklist['items'] %}
 							<li>

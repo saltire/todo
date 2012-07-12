@@ -9,8 +9,6 @@ from gtasks import GTasks
 app = Flask(__name__)
 app.secret_key = '\xf9\xeeV\x06~T\xc78j1C]\xfb\xddx\xad\xfb\xc8\xc5\x1b[g\x13%'
 
-print app.config['SERVER_NAME']
-
 # google tasks specific stuff
 client_id = '311996974047.apps.googleusercontent.com'
 client_secret = 'w-OafbM5XFHXEyctLaxjZ5W2'
@@ -55,6 +53,16 @@ def index():
         lists.append(tasklist)
     
     return render_template('tasks.html', lists=lists, root=url_for('index'))
+
+
+@app.route('/_add_task', methods=['post'])
+def add_task():
+    body = {
+        'title': request.form.get('title'),
+        'notes': request.form.get('notes')
+        }
+    response = gtasks.do_request('tasks.insert', request.form.get('tasklist'), body=body)
+    return jsonify(response)
 
 
 @app.route('/_update_task', methods=['patch'])

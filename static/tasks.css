@@ -11,17 +11,21 @@
 
 .tasklist { width: 500px; margin: 0 34px; padding: 20px 15px; border: 1px dotted #f1f1da;
 	vertical-align: top; white-space: normal; overflow: hidden; position: relative; display: inline-block; }
-.tasklist h2 { border-bottom: 1px dotted #fff; margin: 0 10px 15px; font-size: 24px; text-align: center; }
+.tasklist h2 { border-bottom: 1px dotted #fff; margin: 0 10px 15px;
+	font-size: 24px; text-align: center; position: relative; }
 .tasklist ul { margin: 0; padding: 0; list-style-type: none; }
 .tasklist ul li { }
 .tasklist ul ul { margin-left: 25px; /*border-left: 1px solid #fff;*/ }
+.tasklist .add { font-size: 14px; font-weight: normal; position: absolute; bottom: 3px; right: 0; }
 
-.tasklist .task { min-height: 20px; padding: 5px 10px; line-height: 20px; display: block; }
+.tasklist .task { padding: 5px 10px; line-height: 20px; display: block; }
 .tasklist .task:hover { background: #b3b3a1; outline: 1px dotted #fff; }
 .tasklist .task.completed { opacity: 0.6; text-decoration: line-through; }
 .tasklist .task input[type=checkbox] { margin-top: 5px; float: left; }
 .tasklist .task span { margin-left: 25px; display: block; }
-.tasklist .task .tasktitle { font-weight: bold; font-size: 16px; }
+.tasklist .task .tasktitle { min-height: 20px; font-weight: bold; font-size: 16px; }
 .tasklist .task .tasknotes { font-size: 12px; }
+.tasklist .task .tasktitle:hover,
+.tasklist .task .tasknotes:hover { cursor: text; }
 
 .tasklist .task input[type=text] { background: transparent; border: 1px dotted #f1f1da; }
