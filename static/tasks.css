@@ -28,4 +28,6 @@
 .tasklist .task .tasktitle:hover,
 .tasklist .task .tasknotes:hover { cursor: text; }
 
-.tasklist .task input[type=text] { background: transparent; border: 1px dotted #f1f1da; }
+.tasklist .task .tasktitle input { font-weight: bold; }
+.tasklist .task .tasktitle input,
+.tasklist .task .tasknotes input { border: 1px dotted #f1f1da; background: #ccccb8; color: #ffffff; }
