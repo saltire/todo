@@ -22,12 +22,16 @@
 .tasklist .task:hover { background: #b3b3a1; outline: 1px dotted #fff; }
 .tasklist .task.completed { opacity: 0.6; text-decoration: line-through; }
 .tasklist .task input[type=checkbox] { margin-top: 5px; float: left; }
-.tasklist .task span { margin-left: 25px; display: block; }
+.tasklist .task .delete { width: 15px; font-size: 14px; text-align: center; float: right; display: none; }
+.tasklist .task:hover .delete { display: block; }
+.tasklist .task .delete:hover { background: #ccccb8; }
+.tasklist .task span { margin: 0 25px; display: block; }
 .tasklist .task .tasktitle { min-height: 20px; font-weight: bold; font-size: 16px; }
 .tasklist .task .tasknotes { font-size: 12px; }
 .tasklist .task .tasktitle:hover,
 .tasklist .task .tasknotes:hover { cursor: text; }
 
-.tasklist .task .tasktitle input { font-weight: bold; }
 .tasklist .task .tasktitle input,
-.tasklist .task .tasknotes input { border: 1px dotted #f1f1da; background: #ccccb8; color: #ffffff; }
+.tasklist .task .tasknotes input { width: 100%; border: 1px dotted #f1f1da;
+	background: #ccccb8; color: #ffffff; }
+.tasklist .task .tasktitle input { height: 18px; font-size: 16px; font-weight: bold; line-height: 18px; }

@@ -6,15 +6,10 @@ $(function() {
 
 
 	// send a request to flask, and optionally pass its response to a callback
-	function do_request(method, type, data, callback) {
-		$.ajax({
-			url: webroot + '/_' + method,
-			type: type,
-			data: data,
-			success: (callback !== undefined) ? callback : function(resp) {
-				// obviously temporary default callback
-				alert(resp);
-			}
+	function do_request(method, data, callback) {
+		$.post(webroot + '/_' + method, data, (callback !== undefined) ? callback : function(resp) {
+			// obviously temporary default callback
+			alert(resp);
 		});
 	}
 	
@@ -57,11 +52,11 @@ $(function() {
 						if ($task.attr('id')) {
 							// update an existing task (already has an id)
 							data['task'] = $task.attr('id').slice(5);
-							do_request('update_task', 'patch', data);
+							do_request('update_task', data);
 						
 						} else {
 							// create a new task and assign it an id
-							do_request('add_task', 'post', data, function(resp) {
+							do_request('add_task', data, function(resp) {
 								$task.attr('id', 'task-' + resp.id);
 							});
 							$task.find('input:checkbox').change(toggle_checkboxes);
@@ -132,16 +127,19 @@ $(function() {
 			data['status'] = 'needsAction';
 		}
 		
-		do_request('update_task', 'patch', data);
+		do_request('update_task', data);
 	}
 	
 	
 	// add task
-	$('.tasklist .add').click(false).click(function() {
+	$('.tasklist .add').click(function(e) {
+		e.preventDefault();
 		$(this).closest('.tasklist').children('ul').prepend(
 			$('<li />').append(
 				$('<div />').addClass('task').append(
 					$('<input type="checkbox" />')
+				).append(
+					$('<a href="#" />').addClass('delete').text('X').click(delete_task)
 				).append(
 					$('<span />').addClass('tasktitle').make_editable().click()
 				// i think we'll add a second button to add the notes instead
@@ -151,6 +149,22 @@ $(function() {
 			)
 		);
 	});
+	
+	
+	// delete task
+	$('.task .delete').click(delete_task);
+	
+	
+	function delete_task(e) {
+		e.preventDefault();
+		var data = {
+			tasklist: $(this).closest('.tasklist').attr('id').slice(9),
+			task: $(this).closest('.task').attr('id').slice(5),
+		}
+		$(this).closest('li').remove();
+		
+		do_request('delete_task', data);
+	}
 	
 	
 	// sort list
@@ -176,7 +190,7 @@ $(function() {
 			data['parent'] = ui.item.parent().siblings('.task').attr('id').slice(5);
 		}
 		
-		do_request('move_task', 'post', data);
+		do_request('move_task', data);
 	});
 	
 	

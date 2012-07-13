@@ -12,7 +12,7 @@ app.secret_key = '\xf9\xeeV\x06~T\xc78j1C]\xfb\xddx\xad\xfb\xc8\xc5\x1b[g\x13%'
 # google tasks specific stuff
 client_id = '311996974047.apps.googleusercontent.com'
 client_secret = 'w-OafbM5XFHXEyctLaxjZ5W2'
-callback_uri = 'http://www.saltiresable.com/tasks/callback'
+callback_uri = 'http://localhost:5000/callback'
 gtasks = GTasks(client_id, client_secret, callback_uri)
 
 
@@ -67,7 +67,13 @@ def add_task():
     return jsonify(response)
 
 
-@app.route('/_update_task', methods=['patch'])
+@app.route('/_delete_task', methods=['post'])
+def delete_task():
+    response = gtasks.do_request('tasks.delete', request.form.get('tasklist'), request.form.get('task'))
+    return 'deleted'
+
+
+@app.route('/_update_task', methods=['post'])
 def update_task():
     fields = ('title', 'notes', 'updated', 'completed', 'status')
     # older syntax for < 2.7 compatibility

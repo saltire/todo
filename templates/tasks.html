@@ -4,7 +4,8 @@
 		<input type='checkbox' checked />
 	{% else %}
 	<div id='task-{{ task["id"] }}' class='task'>
-		<input type='checkbox' />						
+		<input type='checkbox' />
+		<a class='delete' href='#'>X</a>					
 	{% endif %}
 		<span class='tasktitle'>{{ task['title'] }}</span>
 	{% if task['notes'] %}
