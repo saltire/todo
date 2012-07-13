@@ -4,30 +4,6 @@ $(function() {
 	var listcount = $('.tasklist').length;
 	var listpos;
 
-	function do_request(method, type, data) {
-		// send an ajax request to tasks api
-		$.ajax({
-			url: webroot + '/_' + method,
-			type: type,
-			data: data,
-			success: function(resp) {
-				//alert(resp);
-			}
-		});
-	}
-	
-	function refresh_view() {
-		// show or hide nav buttons, change any other effects after list switch
-		listpos = -parseInt($('.tasklists').css('left')) / viewwidth;
-		$('.tasknav a').hide();
-		if (listpos > 0) {
-			$('.tasknav .prev').show();
-		}
-		if (listpos < listcount - 1) {
-			$('.tasknav .next').show();
-		}
-	}
-	
 
 	// send a request to flask, and optionally pass its response to a callback
 	function do_request(method, type, data, callback) {
@@ -43,6 +19,19 @@ $(function() {
 	}
 	
 	
+	function refresh_view() {
+		// show or hide nav buttons, change any other effects after list switch
+		listpos = -parseInt($('.tasklists').css('left')) / viewwidth;
+		$('.tasknav a').hide();
+		if (listpos > 0) {
+			$('.tasknav .prev').show();
+		}
+		if (listpos < listcount - 1) {
+			$('.tasknav .next').show();
+		}
+	}
+	
+
 	$.fn.extend({
 		// initializes an element to be editable
 		make_editable: function() {
@@ -126,7 +115,7 @@ $(function() {
 				set_check_status($(this));
 			})
 		}
-	});
+	}
 
 	function set_check_status($checkbox) {
 		// submit the task status to the api
