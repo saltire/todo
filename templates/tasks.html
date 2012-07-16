@@ -5,8 +5,8 @@
 	{% else %}
 	<div id='task-{{ task["id"] }}' class='task'>
 		<input type='checkbox' />
-		<a class='delete' href='#'>X</a>					
 	{% endif %}
+		<a class='delete' href='#'>X</a>					
 		<span class='tasktitle'>{{ task['title'] }}</span>
 	{% if task['notes'] %}
 		<span class='tasknotes'>{{ task['notes'] }}</span>

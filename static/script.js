@@ -114,7 +114,7 @@ $(function() {
 				.removeClass('completed').find('input:checkbox').filter(':checked').each(function() {
 					$(this).prop('checked', false);
 					submit_check_status($(this));
-				})
+				});
 		}
 	}
 
@@ -160,7 +160,6 @@ $(function() {
 	// delete task
 	$('.task .delete').click(delete_task);
 	
-	
 	function delete_task(e) {
 		e.preventDefault();
 		var data = {
@@ -191,9 +190,19 @@ $(function() {
 		if (ui.item.prev().children('.task').length) {
 			data['previous'] = ui.item.prev().children('.task').attr('id').slice(5);
 		}
+		
 		// find the parent task, if any
 		if (ui.item.parents('.tasklist li').length) {
 			data['parent'] = ui.item.parent().siblings('.task').attr('id').slice(5);
+			
+			// if unchecked, also uncheck all ancestors
+			if (!ui.item.children('.task').find('input:checkbox').is(':checked')) {
+				ui.item.parents('.tasklist li').children('.task')
+					.removeClass('completed').find('input:checkbox').filter(':checked').each(function() {
+						$(this).prop('checked', false);
+						submit_check_status($(this));
+					})
+			}
 		}
 		
 		do_request('move_task', data);
