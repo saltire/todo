@@ -97,22 +97,28 @@ $(function() {
 	$('.task input:checkbox').change(toggle_checkboxes);
 			
 	function toggle_checkboxes(e) {
+		submit_check_status($(this));
+		
 		// find out what other tasks' statuses are affected by this and submit them
 		if ($(this).prop('checked')) {
-			$(this).closest('li').find('.task').addClass('completed').find('input:checkbox').each(function() {
-				$(this).prop('checked', true);
-				set_check_status($(this));
-			});
+			// if checking, also check all descendants
+			$(this).closest('li').find('.task').addClass('completed').find('input:checkbox').not(':checked').each(function() {
+					$(this).prop('checked', true);
+					submit_check_status($(this));
+				});
 		
 		} else {
-			$(this).parents('.tasklist li').find('.task').removeClass('completed').find('input:checkbox').each(function() {
-				$(this).prop('checked', false);
-				set_check_status($(this));
-			})
+			// if unchecking, also uncheck all ancestors and descendants (but not siblings)
+			$(this).parents('.tasklist li').children('.task') // ancestors
+				.add($(this).closest('li').find('.task')) // descendants
+				.removeClass('completed').find('input:checkbox').filter(':checked').each(function() {
+					$(this).prop('checked', false);
+					submit_check_status($(this));
+				})
 		}
 	}
 
-	function set_check_status($checkbox) {
+	function submit_check_status($checkbox) {
 		// submit the task status to the api
 		var data = {
 			tasklist: $checkbox.closest('.tasklist').attr('id').slice(9),
