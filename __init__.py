@@ -69,7 +69,7 @@ def add_task():
 
 @app.route('/_delete_task', methods=['post'])
 def delete_task():
-    response = gtasks.do_request('tasks.delete', request.form.get('tasklist'), request.form.get('task'))
+    gtasks.do_request('tasks.delete', request.form.get('tasklist'), request.form.get('task'))
     return 'deleted'
 
 

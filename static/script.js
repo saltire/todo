@@ -148,9 +148,6 @@ $(function() {
 					$('<a href="#" />').addClass('delete').text('X').click(delete_task)
 				).append(
 					$('<span />').addClass('tasktitle').make_editable().click()
-				// i think we'll add a second button to add the notes instead
-				//).append(
-				//	$('<span />').addClass('tasknotes').make_editable()
 				)
 			)
 		);
@@ -169,6 +166,31 @@ $(function() {
 		$(this).closest('li').remove();
 		
 		do_request('delete_task', data);
+	}
+	
+	
+	// show/hide/create notes
+	$('.task .notetoggle').click(toggle_notes);
+	
+	function toggle_notes(e) {
+		e.preventDefault();
+		var $task = $(this).closest('.task');
+		
+		if (!$task.find('.tasknotes:visible').length) {
+			if (!$task.find('.tasknotes').length) {
+				// create notes
+				$task.append($('<span />').addClass('tasknotes').make_editable().click());
+			} else {
+				// show notes
+				$task.find('.tasknotes').slideDown(100);
+			}
+			$(this).html('&ndash;');
+			
+		} else {
+			// hide notes
+			$task.find('.tasknotes').slideUp(100);
+			$(this).html('+');
+		}
 	}
 	
 	
