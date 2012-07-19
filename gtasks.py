@@ -62,11 +62,11 @@ class GTasks:
         
         response = getattr(requests, httpmethod)(uri, params=params, data=body, headers=headers)
         rdata = response.json
-        print rdata
         if rdata is not None:
             print '>>>', httpmethod, response.url, params, body
-            print response
-            print '<<<'
+            print '<<<', response
+            print rdata
+            print '---'
             
             if 'error' in rdata:
                 raise Exception('error {0}: {1}'.format(rdata['error']['code'], rdata['error']['message']))

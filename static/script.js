@@ -30,39 +30,63 @@ $(function() {
 	$.fn.extend({
 		// initializes an element to be editable
 		make_editable: function() {
+			$(this).click(function() {
+				$(this).focus(); // does this work?
+			});
 			$(this).editable({
 				onEdit: function(content) {
 					this.focus(); // this doesn't seem to work
 				},
 				onSubmit: function(content) {
-					if (content.current != content.previous) {
-						var data = {
-							tasklist: this.closest('.tasklist').attr('id').slice(9),
+					var data = {
+						tasklist: this.closest('.tasklist').attr('id').slice(9),
+					};
+					var $task = this.closest('.task');
+					var taskid = $task.attr('id') ? $task.attr('id').slice(5) : null;
+
+					if (this.hasClass('tasktitle')) {
+						if (content.current == '') {
+							// remove entire task
+							$(this).closest('li').remove();
+							if (taskid) {
+								data['task'] = taskid;
+								do_request('delete_task', data);
+							}
+
+						} else if (content.current != content.previous) {
+							data['title'] = content.current;
+
+							if (taskid) {
+								// update an existing task (already has an id)
+								data['task'] = taskid;
+								do_request('update_task', data);
+							
+							} else {
+								// create a new task and assign it an id
+								do_request('add_task', data, function(resp) {
+									$task.attr('id', 'task-' + resp.id);
+								});
+								$task.find('input:checkbox').change(toggle_checkboxes);
+							}
 						}
 
-						if (this.hasClass('tasktitle')) {
-							data['title'] = content.current;
-							
-						} else if (this.hasClass('tasknotes')) {
+					} else if (this.hasClass('tasknotes')) {
+						if (content.current == '') {
+							// remove note html
+							$(this).remove();
+							$task.find('.notetoggle').html('+');
+						}
+
+						if (content.current != content.previous) {
+							// update task with new notes (or lack thereof)
+							data['task'] = taskid;
 							data['notes'] = content.current;
-						}
-						
-						var $task = this.closest('.task');
-						
-						if ($task.attr('id')) {
-							// update an existing task (already has an id)
-							data['task'] = $task.attr('id').slice(5);
 							do_request('update_task', data);
-						
-						} else {
-							// create a new task and assign it an id
-							do_request('add_task', data, function(resp) {
-								$task.attr('id', 'task-' + resp.id);
-							});
-							$task.find('input:checkbox').change(toggle_checkboxes);
 						}
+
 					}
 				}
+				
 			}).keypress(function(e) {
 				// trigger submit when user presses enter
 				if (e.which == 13) {
@@ -103,9 +127,9 @@ $(function() {
 		if ($(this).prop('checked')) {
 			// if checking, also check all descendants
 			$(this).closest('li').find('.task').addClass('completed').find('input:checkbox').not(':checked').each(function() {
-					$(this).prop('checked', true);
-					submit_check_status($(this));
-				});
+				$(this).prop('checked', true);
+				submit_check_status($(this));
+			});
 		
 		} else {
 			// if unchecking, also uncheck all ancestors and descendants (but not siblings)
@@ -123,7 +147,7 @@ $(function() {
 		var data = {
 			tasklist: $checkbox.closest('.tasklist').attr('id').slice(9),
 			task: $checkbox.closest('.task').attr('id').slice(5),
-		}
+		};
 		
 		if ($checkbox.prop('checked')) {
 			data['completed'] = new Date().toISOString();
@@ -145,7 +169,9 @@ $(function() {
 				$('<div />').addClass('task').append(
 					$('<input type="checkbox" />')
 				).append(
-					$('<a href="#" />').addClass('delete').text('X').click(delete_task)
+					$('<a href="#" />').addClass('delete control').html('&#xd7;').click(delete_task)
+				).append(
+					$('<a href="#" />').addClass('notetoggle control').html('+').click(toggle_notes)
 				).append(
 					$('<span />').addClass('tasktitle').make_editable().click()
 				)
@@ -162,7 +188,7 @@ $(function() {
 		var data = {
 			tasklist: $(this).closest('.tasklist').attr('id').slice(9),
 			task: $(this).closest('.task').attr('id').slice(5),
-		}
+		};
 		$(this).closest('li').remove();
 		
 		do_request('delete_task', data);
@@ -206,7 +232,7 @@ $(function() {
 		var data = {
 			tasklist: ui.item.closest('.tasklist').attr('id').slice(9),
 			task: ui.item.children('.task').attr('id').slice(5),
-		}
+		};
 		
 		// find the previous task at this level, if any
 		if (ui.item.prev().children('.task').length) {

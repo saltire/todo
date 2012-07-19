@@ -76,12 +76,13 @@ def delete_task():
 @app.route('/_update_task', methods=['post'])
 def update_task():
     fields = ('title', 'notes', 'updated', 'completed', 'status')
+    #patch = {field: request.form[field] for field in fields if field in request.form}
     # older syntax for < 2.7 compatibility
     patch = dict((field, request.form[field]) for field in fields if field in request.form)
     
-    # javascript null needs to be passed as None - requests does not parse this properly?
+    # javascript null needs to be passed as None so requests will parse it properly
     for field, value in patch.iteritems():
-        if value in ('null', ''):
+        if value == 'null':
             patch[field] = None
     
     response = gtasks.do_request('tasks.patch', request.form.get('tasklist'), request.form.get('task'), body=patch)
