@@ -1,4 +1,11 @@
 $(function() {
+	
+	// scroll to the tasklist passed in the URL and given the 'start' class
+	if ($('.tasklist.start').length) {
+		var index = $('.tasklist.start').index('.tasklist');
+		$('.tasklists').css('left', -index * $('.tasklist-view').width() + 'px');
+	}
+	
 	refresh_view();
 	
 	// animate horizontal paging between lists

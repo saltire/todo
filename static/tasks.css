@@ -7,16 +7,17 @@
 .tasknav .buttons .next { float: right; }
 
 .tasklist-view { width: 600px; margin: auto; overflow: hidden; }
-.tasklists { white-space: nowrap; position: relative; left: 0; }
+.tasklists { white-space: nowrap; font-size: 0; position: relative; left: 0; }
 
 .tasklist { width: 500px; margin: 0 34px; padding: 20px 15px; border: 1px dotted #f1f1da;
-	vertical-align: top; white-space: normal; overflow: hidden; position: relative; display: inline-block; }
-.tasklist h2 { border-bottom: 1px dotted #fff; margin: 0 10px 15px;
-	font-size: 24px; text-align: center; position: relative; }
+	font-size: 16px; vertical-align: top; white-space: normal; overflow: hidden;
+	position: relative; display: inline-block; }
+.tasklist h2 { border-bottom: 1px dotted #fff; margin: 0 10px 15px; padding: 0 50px;
+	font-size: 24px; text-align: center; }
+.tasklist > a { margin: 8px 10px 0 0; padding: 2px; font-size: 12px; float: right; }
 .tasklist ul { margin: 0; padding: 0; list-style-type: none; }
 .tasklist ul li { }
 .tasklist ul ul { margin-left: 25px; /*border-left: 1px solid #fff;*/ }
-.tasklist .add { font-size: 14px; font-weight: normal; position: absolute; bottom: 3px; right: 0; }
 
 .tasklist .task { padding: 5px 10px; line-height: 20px; display: block; }
 .tasklist .task:hover { background: #b3b3a1; outline: 1px dotted #fff; }

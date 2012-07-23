@@ -31,12 +31,15 @@ def callback():
 
 
 @app.route('/')
-def index():
+@app.route('/tasklist/<id>')
+def index(id=None):
     # check if token exists and has not expired
     if not session.get('token') or time.time() > session.get('expiry', 0):
         return redirect(gtasks.get_authorize_uri())
     
     gtasks.set_access_token(session['token'])
+    
+    root = url_for('index').replace('/index.fcgi', '').rstrip('/')
     
     def get_child_tasks(tasks, rootid=None):
         branch = []
@@ -49,11 +52,12 @@ def index():
     # build a tree of tasks for each tasklist
     lists = []
     for tasklist in gtasks.do_request('tasklists.list')['items']:
+        if id == tasklist['id']:
+            # scroll straight to the position of this tasklist
+            tasklist['start'] = True
         tasklist['items'] = get_child_tasks(gtasks.do_request('tasks.list', tasklist['id'])['items'])
         lists.append(tasklist)
-    
-    root = url_for('index').replace('/index.fcgi', '').rstrip('/')
-    
+        
     return render_template('tasks.html', lists=lists, root=root)
 
 

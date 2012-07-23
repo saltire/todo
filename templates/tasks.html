@@ -43,11 +43,15 @@
 			<div class='tasklist-view'>
 				<div class='tasklists'>
 {% for tasklist in lists %}
+	{% if tasklist['start'] %}
+					<div id='tasklist-{{ tasklist["id"] }}' class='tasklist start'>
+	{% else %}
 					<div id='tasklist-{{ tasklist["id"] }}' class='tasklist'>
+	{% endif %}
 						<div class='backg'></div>
-						<h2>{{ tasklist['title'] }}
-							<a class='add' href='#'>add</a>
-						</h2>
+						<a class='add' href='#'>add</a>
+						<a class='link' href='{{ root }}/tasklist/{{ tasklist["id"] }}'>link</a>
+						<h2>{{ tasklist['title'] }}</h2>
 						<ul>
 	{% for task in tasklist['items'] %}
 							<li>
