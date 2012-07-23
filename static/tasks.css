@@ -19,20 +19,20 @@
 .tasklist ul li { }
 .tasklist ul ul { margin-left: 25px; /*border-left: 1px solid #fff;*/ }
 
-.tasklist .task { padding: 5px 10px; line-height: 20px; display: block; }
-.tasklist .task:hover { background: #b3b3a1; outline: 1px dotted #fff; }
-.tasklist .task.completed { opacity: 0.6; text-decoration: line-through; }
-.tasklist .task input[type=checkbox] { margin-top: 5px; float: left; }
-.tasklist .task .control { width: 20px; text-align: center; float: right; display: none; }
-.tasklist .task:hover .control { text-decoration: none !important; display: block; }
-.tasklist .task .control:hover { background: #ccccb8; }
-.tasklist .task span { margin: 0 50px 0 25px; display: block; }
-.tasklist .task .tasktitle { min-height: 20px; font-weight: bold; font-size: 16px; }
-.tasklist .task .tasknotes { font-size: 12px; }
-.tasklist .task .tasktitle:hover,
-.tasklist .task .tasknotes:hover { cursor: text; }
+.task { padding: 5px 10px; line-height: 20px; display: block; }
+.task:hover { background: #b3b3a1; outline: 1px dotted #fff; }
+.task.completed { opacity: 0.6; text-decoration: line-through; }
+.task input[type=checkbox] { margin-top: 5px; float: left; }
+.task .control { width: 20px; text-align: center; float: right; display: none; }
+.task:hover .control { text-decoration: none !important; display: block; }
+.task .control:hover { background: #ccccb8; }
 
-.tasklist .task .tasktitle input,
-.tasklist .task .tasknotes input { width: 100%; border: 1px dotted #f1f1da;
+.task span { margin: 0 50px 0 25px; display: block; }
+.task span:hover { cursor: text; }
+.task .tasktitle { min-height: 20px; font-weight: bold; font-size: 16px; }
+.task .tasknotes { font-size: 12px; }
+
+.task .tasktitle input,
+.task .tasknotes textarea { width: 100%; border: 1px dotted #f1f1da;
 	background: #ccccb8; color: #ffffff; }
-.tasklist .task .tasktitle input { height: 18px; font-size: 16px; font-weight: bold; line-height: 18px; }
+.task .tasktitle input { height: 18px; font-size: 16px; font-weight: bold; line-height: 18px; }

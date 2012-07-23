@@ -15,7 +15,9 @@ $(function() {
 	});
 	
 	// edit task titles and notes
-	$('.tasktitle, .tasknotes').make_editable();
+	$('.tasktitle, .tasknotes').each(function() {
+		$(this).make_editable();
+	});
 	
 	// reset check boxes in case of page reload
 	$('.task.completed input:checkbox').prop('checked', true);
@@ -73,6 +75,7 @@ $.fn.extend({
 			$(this).focus(); // does this work?
 		});
 		$(this).editable({
+			type: $(this).hasClass('tasknotes') ? 'textarea' : 'text',
 			onEdit: function(content) {
 				this.focus(); // this doesn't seem to work
 			},
