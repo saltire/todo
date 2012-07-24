@@ -6,10 +6,10 @@
 {% macro draw_task(task) %}
 	{% if task['completed'] %}
 							<div id='task-{{ task["id"] }}' class='task completed'>
-								<input type='checkbox' checked />
+								<a class='checkbox'>&#x2713;</a>
 	{% else %}
 							<div id='task-{{ task["id"] }}' class='task'>
-								<input type='checkbox' />
+								<a class='checkbox'>&nbsp;</a>
 	{% endif %}
 								<a class='delete control' href='#'>&#xd7;</a>
 								<a class='notetoggle control' href='#'>{% if task['notes'] %}&ndash;{% else %}+{% endif %}</a>
@@ -36,8 +36,8 @@
 		<div class='taskmain'>
 			<div class='tasknav'>
 				<div class='buttons'>
-					<a class='prev' href='#'>prev</a>
-					<a class='next' href='#'>next</a>
+					<a class='prev' href='#'>&#x25c0;</a>
+					<a class='next' href='#'>&#x25b6;</a>
 				</div>
 			</div>
 			<div class='tasklist-view'>

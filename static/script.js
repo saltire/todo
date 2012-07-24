@@ -19,12 +19,8 @@ $(function() {
 		$(this).make_editable();
 	});
 	
-	// reset check boxes in case of page reload
-	$('.task.completed input:checkbox').prop('checked', true);
-	$('.task:not(".completed") input:checkbox').prop('checked', false);
-	
 	// check boxes
-	$('.task input:checkbox').change(toggle_checkboxes);
+	$('.task .checkbox').click(toggle_checkboxes);
 
 	// add task
 	$('.tasklist .add').click(add_task);
@@ -143,35 +139,34 @@ $.fn.extend({
 
 
 function toggle_checkboxes(e) {
-	submit_check_status($(this));
+	e.preventDefault();
 	
 	// find out what other tasks' statuses are affected by this and submit them
-	if ($(this).prop('checked')) {
-		// if checking, also check all descendants
-		$(this).closest('li').find('.task').addClass('completed').find('input:checkbox').not(':checked').each(function() {
-			$(this).prop('checked', true);
-			submit_check_status($(this));
-		});
+	if (!$(this).closest('li').children('.task').hasClass('completed')) {
+		// check, and also check all descendants
+		$(this).closest('li').find('.task').not('.completed')
+			.addClass('completed').each(submit_check_status)
+			.find('.checkbox').html('&#x2713;');
 	
 	} else {
-		// if unchecking, also uncheck all ancestors and descendants (but not siblings)
-		$(this).parents('.tasklist li').children('.task') // ancestors
-			.add($(this).closest('li').find('.task')) // descendants
-			.removeClass('completed').find('input:checkbox').filter(':checked').each(function() {
-				$(this).prop('checked', false);
-				submit_check_status($(this));
-			});
+		// uncheck, and uncheck all ancestors and descendants (but not siblings)
+		$(this).closest('li').find('.checkbox').html('&nbsp;');
+		$(this).parents('.tasklist li').children('.task.completed') // ancestors
+			.add($(this).closest('li').find('.task.completed')) // descendants
+			.removeClass('completed').each(submit_check_status)
+			.find('.checkbox').html('&nbsp;');
 	}
 }
 
-function submit_check_status($checkbox) {
+
+function submit_check_status() {
 	// submit the task status to the api
 	var data = {
-		tasklist: $checkbox.closest('.tasklist').attr('id').slice(9),
-		task: $checkbox.closest('.task').attr('id').slice(5),
+		tasklist: $(this).closest('.tasklist').attr('id').slice(9),
+		task: $(this).attr('id').slice(5),
 	};
 	
-	if ($checkbox.prop('checked')) {
+	if ($(this).hasClass('completed')) {
 		data['completed'] = new Date().toISOString();
 		data['status'] = 'completed';
 	} else {
