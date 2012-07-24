@@ -183,7 +183,7 @@ function add_task(e) {
 	$(this).closest('.tasklist').children('ul').prepend(
 		$('<li />').append(
 			$('<div />').addClass('task').append(
-				$('<input type="checkbox" />')
+				$('<a>&nbsp;</a>').addClass('checkbox')
 			).append(
 				$('<a href="#" />').addClass('delete control').html('&#xd7;').click(delete_task)
 			).append(
