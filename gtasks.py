@@ -47,12 +47,13 @@ class GTasks:
     
     
     def do_request(self, method, tasklist='', task='', params={}, body=''):
-        if not getattr(self, 'token'):
+        try:
+            params['access_token'] = getattr(self, 'token')
+        except AttributeError:
             raise Exception('Not authenticated!')
         
         httpmethod, uri, body_req = self.methods.get(method)
         uri = '{0}/{1}'.format(self.tasks_api_uri, uri.format(tasklist, task))
-        params['access_token'] = self.token
         headers = {}
         if body_req:
             headers['content-type'] = 'application/json'

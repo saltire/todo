@@ -1,7 +1,7 @@
 import time
 
 from flask import Flask
-from flask import jsonify, redirect, render_template, request, session, url_for
+from flask import g, jsonify, redirect, render_template, request, session, url_for
 
 from gtasks import GTasks
 
@@ -9,18 +9,27 @@ from gtasks import GTasks
 app = Flask(__name__)
 app.secret_key = '\xf9\xeeV\x06~T\xc78j1C]\xfb\xddx\xad\xfb\xc8\xc5\x1b[g\x13%'
 
-# google tasks specific stuff
-client_id = '311996974047.apps.googleusercontent.com'
-client_secret = 'w-OafbM5XFHXEyctLaxjZ5W2'
-callback_uri = 'http://localhost:5000/callback'
-gtasks = GTasks(client_id, client_secret, callback_uri)
 
+@app.before_request
+def init_gtasks():
+    client_id = '311996974047.apps.googleusercontent.com'
+    client_secret = 'w-OafbM5XFHXEyctLaxjZ5W2'
+    callback_uri = url_for('callback', _external=True).replace('/index.fcgi', '')
+    g.gtasks = GTasks(client_id, client_secret, callback_uri)
+    
+    if request.endpoint != 'callback':
+        # check if token exists and has not expired
+        if not session.get('token') or time.time() > session.get('expiry', 0):
+            return redirect(g.gtasks.get_authorize_uri())
+        
+        g.gtasks.set_access_token(session['token'])
+    
 
 @app.route('/callback')
 def callback():
     code = request.args.get('code', '')
     
-    response = gtasks.get_access_token(code)
+    response = g.gtasks.get_access_token(code)
     if 'access_token' in response:
         # store token to make requests with it
         session['token'] = response['access_token']
@@ -31,14 +40,8 @@ def callback():
 
 
 @app.route('/')
-@app.route('/tasklist/<id>')
-def index(id=None):
-    # check if token exists and has not expired
-    if not session.get('token') or time.time() > session.get('expiry', 0):
-        return redirect(gtasks.get_authorize_uri())
-    
-    gtasks.set_access_token(session['token'])
-    
+@app.route('/tasklist/<tlid>')
+def index(tlid=None):
     root = url_for('index').replace('/index.fcgi', '').rstrip('/')
     
     def get_child_tasks(tasks, rootid=None):
@@ -51,11 +54,11 @@ def index(id=None):
     
     # build a tree of tasks for each tasklist
     lists = []
-    for tasklist in gtasks.do_request('tasklists.list')['items']:
-        if id == tasklist['id']:
+    for tasklist in g.gtasks.do_request('tasklists.list')['items']:
+        if tlid == tasklist['id']:
             # scroll straight to the position of this tasklist
             tasklist['start'] = True
-        tasklist['items'] = get_child_tasks(gtasks.do_request('tasks.list', tasklist['id'])['items'])
+        tasklist['items'] = get_child_tasks(g.gtasks.do_request('tasks.list', tasklist['id'])['items'])
         lists.append(tasklist)
         
     return render_template('tasks.html', lists=lists, root=root)
@@ -67,13 +70,13 @@ def add_task():
         'title': request.form.get('title'),
         'notes': request.form.get('notes')
         }
-    response = gtasks.do_request('tasks.insert', request.form.get('tasklist'), body=body)
+    response = g.gtasks.do_request('tasks.insert', request.form.get('tasklist'), body=body)
     return jsonify(response)
 
 
 @app.route('/_delete_task', methods=['post'])
 def delete_task():
-    gtasks.do_request('tasks.delete', request.form.get('tasklist'), request.form.get('task'))
+    g.gtasks.do_request('tasks.delete', request.form.get('tasklist'), request.form.get('task'))
     return 'deleted'
 
 
@@ -89,7 +92,7 @@ def update_task():
         if value == 'null':
             patch[field] = None
     
-    response = gtasks.do_request('tasks.patch', request.form.get('tasklist'), request.form.get('task'), body=patch)
+    response = g.gtasks.do_request('tasks.patch', request.form.get('tasklist'), request.form.get('task'), body=patch)
     return repr(response)
 
 
@@ -97,7 +100,7 @@ def update_task():
 def move_task():
     fields = ('previous', 'parent')
     params = dict((field, request.form[field]) for field in fields if field in request.form)
-    response = gtasks.do_request('tasks.move', request.form.get('tasklist'), request.form.get('task'), params=params)
+    response = g.gtasks.do_request('tasks.move', request.form.get('tasklist'), request.form.get('task'), params=params)
     return repr(response)
 
 
