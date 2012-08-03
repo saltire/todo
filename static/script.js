@@ -31,6 +31,9 @@ $(function() {
 	// show/hide/create notes
 	$('.task .notetoggle').click(toggle_notes);
 	
+	// split task into sublist
+	$('.task .split').click(split_task);
+	
 	// sort list
 	$('.tasklists > .tasklist > ul').nestedSortable({
 		listType: 'ul',
@@ -229,6 +232,50 @@ function toggle_notes(e) {
 	}
 }
 
+function split_task(e) {
+	e.preventDefault();
+	var $task = $(this).closest('.task');
+	
+	// create new sublist
+	var $newlist = $('<div />').addClass('tasklist-view').append(
+		$('<div />').addClass('tasklist subtask').append(
+			$('<div />').addClass('backg')
+		).append(
+			$('<a href="#" />').addClass('add').html('add')
+		).append(
+			$('<a href="link" />').addClass('link').html('link')
+		).append(
+			$('<h2 />').html($task.children('.tasktitle').html())
+		).append(
+			$task.siblings('ul').clone(true, true)
+		)
+	).hide();
+	
+	// create link to merge sublist back into parent
+	var $upnav = $('<div />').addClass('upnav').append(
+		$('<a href="#" />').html('&#x25b2;')
+	).hide();
+	
+	// add a new listview below with a new list
+	$task.closest('.tasklist-view').after($newlist).after($upnav);
+	$upnav.fadeIn();
+	$newlist.slideDown();
+	
+	// hide the parent list (and all top-level lists)
+	$('.tasknav').fadeOut();
+	$task.closest('.tasklist').children('ul').add('.tasklists .tasklist ul').slideUp();
+	
+	// remove the original task tree when both animations are done
+	$task.closest('.tasklist').children('ul').add($newlist).promise().done(function() {
+		$task.siblings('ul').remove();
+	});
+	
+	// bind upnav button to merge the sublist back into the parent
+	
+	// bind add and link buttons
+	
+}
+
 
 function update_sort_order(e, ui) {
 	e.stopPropagation();
@@ -260,13 +307,3 @@ function update_sort_order(e, ui) {
 	do_request('move_task', data);
 }
 
-/*
-// split list
-$('.task').hover(function() {
-	$('<a class="split" />').appendTo(this).click(function() {
-		
-	}, false)
-}, function() {
-	
-});
-*/

@@ -13,6 +13,7 @@
 	{% endif %}
 								<a class='delete control' href='#'>&#xd7;</a>
 								<a class='notetoggle control' href='#'>{% if task['notes'] %}&ndash;{% else %}+{% endif %}</a>
+								<a class='split control' href='#'>s</a>
 								<span class='tasktitle'>{{ task['title'] }}</span>
 	{% if task['notes'] %}
 								<span class='tasknotes'>{{ task['notes'] }}</span>

@@ -7,6 +7,9 @@
 .tasknav .buttons .prev { float: left; }
 .tasknav .buttons .next { float: right; }
 
+.upnav { margin: 10px 0; text-align: center; }
+.upnav a { padding: 5px; font-size: 30px; }
+
 .tasklist-view { width: 600px; margin: auto; overflow: hidden; }
 .tasklists { white-space: nowrap; font-size: 0; position: relative; left: 0; }
 

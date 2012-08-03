@@ -64,6 +64,11 @@ def index(tlid=None):
     return render_template('tasks.html', lists=lists, root=root)
 
 
+@app.route('/_split_task', methods=['get'])
+def split_task():
+    pass
+
+
 @app.route('/_add_task', methods=['post'])
 def add_task():
     body = {
