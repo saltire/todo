@@ -68,6 +68,20 @@ function refresh_view() {
 
 
 $.fn.extend({
+	// get id of parent tasklist
+	get_tasklist_id: function() {
+		var $tasklist = $(this).closest('.tasklist');
+		
+		if ($tasklist.hasClass('sublist')) {
+			// class will be 'tasklist sublist-{id}'
+			return $tasklist.attr('data-parent');
+			
+		} else {
+			// id will be 'tasklist-{id}'
+			return $tasklist.attr('id').slice(9);
+		}
+	},
+	
 	// initializes an element to be editable
 	make_editable: function() {
 		$(this).click(function() {
@@ -165,7 +179,7 @@ function toggle_checkboxes(e) {
 function submit_check_status() {
 	// submit the task status to the api
 	var data = {
-		tasklist: $(this).closest('.tasklist').attr('id').slice(9),
+		tasklist: $(this).get_tasklist_id(),
 		task: $(this).attr('id').slice(5),
 	};
 	
@@ -202,7 +216,7 @@ function add_task(e) {
 function delete_task(e) {
 	e.preventDefault();
 	var data = {
-		tasklist: $(this).closest('.tasklist').attr('id').slice(9),
+		tasklist: $(this).get_tasklist_id(),
 		task: $(this).closest('.task').attr('id').slice(5),
 	};
 	$(this).closest('li').remove();
@@ -235,10 +249,16 @@ function toggle_notes(e) {
 function split_task(e) {
 	e.preventDefault();
 	var $task = $(this).closest('.task');
+	var $taskid = $task.attr('id').slice(5);
+	var $tlid = $(this).get_tasklist_id();
 	
 	// create new sublist
 	var $newlist = $('<div />').addClass('tasklist-view').append(
-		$('<div />').addClass('tasklist subtask').append(
+		$('<div />').addClass('upnav').append(
+			$('<a href="#" />').html('&#x25b2;')
+		)
+	).append(
+		$('<div />').addClass('tasklist sublist').attr('id', 'sublist-' + $taskid).attr('data-parent', $tlid).append(
 			$('<div />').addClass('backg')
 		).append(
 			$('<a href="#" />').addClass('add').html('add')
@@ -251,14 +271,8 @@ function split_task(e) {
 		)
 	).hide();
 	
-	// create link to merge sublist back into parent
-	var $upnav = $('<div />').addClass('upnav').append(
-		$('<a href="#" />').html('&#x25b2;')
-	).hide();
-	
 	// add a new listview below with a new list
-	$task.closest('.tasklist-view').after($newlist).after($upnav);
-	$upnav.fadeIn();
+	$task.closest('.tasklist-view').after($newlist);
 	$newlist.slideDown();
 	
 	// hide the parent list (and all top-level lists)
@@ -272,6 +286,7 @@ function split_task(e) {
 	
 	// bind upnav button to merge the sublist back into the parent
 	
+	
 	// bind add and link buttons
 	
 }
@@ -281,7 +296,7 @@ function update_sort_order(e, ui) {
 	e.stopPropagation();
 	
 	var data = {
-		tasklist: ui.item.closest('.tasklist').attr('id').slice(9),
+		tasklist: ui.item.get_tasklist_id(),
 		task: ui.item.children('.task').attr('id').slice(5),
 	};
 	

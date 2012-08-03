@@ -7,10 +7,10 @@
 .tasknav .buttons .prev { float: left; }
 .tasknav .buttons .next { float: right; }
 
-.upnav { margin: 10px 0; text-align: center; }
-.upnav a { padding: 5px; font-size: 30px; }
+.upnav { margin-bottom: 10px; text-align: center; }
+.upnav a { margin-top: 1px; padding: 5px; font-size: 30px; display: inline-block; }
 
-.tasklist-view { width: 600px; margin: auto; overflow: hidden; }
+.tasklist-view { width: 600px; margin: 0 auto 10px; overflow: hidden; }
 .tasklists { white-space: nowrap; font-size: 0; position: relative; left: 0; }
 
 .tasklist { width: 500px; margin: 0 34px; padding: 20px 15px; border: 1px dotted #f1f1da;
