@@ -275,9 +275,11 @@ function split_task(e) {
 	$task.closest('.tasklist-view').after($newlist);
 	$newlist.slideDown();
 	
-	// hide the parent list (and all top-level lists)
+	// hide the parent list (and all top-level lists), plus parent's nav and links
 	$('.tasknav').fadeOut();
-	$task.closest('.tasklist').children('ul').add('.tasklists .tasklist ul').slideUp();
+	$task.closest('.tasklist-view').children('.upnav').slideUp();
+	$task.closest('.tasklist').children('a').fadeOut();
+	$task.closest('.tasklist').children('ul').add('.tasklists .tasklist > ul').slideUp();
 	
 	// remove the original task tree when both animations are done
 	$task.closest('.tasklist').children('ul').add($newlist).promise().done(function() {
@@ -285,10 +287,44 @@ function split_task(e) {
 	});
 	
 	// bind upnav button to merge the sublist back into the parent
+	$('.upnav a').click(merge_task);
 	
 	
 	// bind add and link buttons
 	
+	
+	// add task notes and check status even when in sublist form
+	
+}
+
+
+function merge_task(e) {
+	e.preventDefault();
+	
+	var $sublist = $(this).parent().siblings('.sublist');
+	var $task = $('#task-' + $sublist.attr('id').slice(8));
+	
+	$task.after($sublist.children('ul').clone(true, true));
+	
+	// hide this view
+	$sublist.closest('.tasklist-view').slideUp();
+	
+	// show old view and all its extras
+	$task.closest('.tasklist-view').children('.upnav').slideDown();
+	$task.closest('.tasklist').children('a').fadeIn();
+	$task.closest('.tasklist').children('ul').slideDown();
+	
+	// if parent task is top-level, then fade in the horizontal nav
+	if ($task.closest('.tasklists').length) {
+		$('.tasknav').fadeIn();
+	}
+	
+	// remove the lowest task view when animations are done
+	$sublist.closest('.tasklist-view').add(
+		$task.closest('.tasklist').children('ul')
+	).promise().done(function() {
+		$sublist.closest('.tasklist-view').remove();
+	});
 }
 
 
