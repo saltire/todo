@@ -75,7 +75,8 @@ def add_task():
         'title': request.form.get('title'),
         'notes': request.form.get('notes')
         }
-    response = g.gtasks.do_request('tasks.insert', request.form.get('tasklist'), body=body)
+    params = {'parent': request.form['parent']} if 'parent' in request.form else {}
+    response = g.gtasks.do_request('tasks.insert', request.form.get('tasklist'), params=params, body=body)
     return jsonify(response)
 
 

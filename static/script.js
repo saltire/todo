@@ -94,7 +94,7 @@ $.fn.extend({
 			},
 			onSubmit: function(content) {
 				var data = {
-					tasklist: this.closest('.tasklist').attr('id').slice(9),
+					tasklist: this.get_tasklist_id(),
 				};
 				var $task = this.closest('.task');
 				var taskid = $task.attr('id') ? $task.attr('id').slice(5) : null;
@@ -117,6 +117,10 @@ $.fn.extend({
 							do_request('update_task', data);
 						
 						} else {
+							if (this.closest('.sublist').length) {
+								data['parent'] = this.closest('.sublist').attr('id').slice(8);
+							}
+							
 							// create a new task and assign it an id
 							do_request('add_task', data, function(resp) {
 								$task.attr('id', 'task-' + resp.id);
@@ -197,6 +201,7 @@ function submit_check_status() {
 
 function add_task(e) {
 	e.preventDefault();
+	
 	$(this).closest('.tasklist').children('ul').prepend(
 		$('<li />').append(
 			$('<div />').addClass('task').append(
@@ -287,10 +292,10 @@ function split_task(e) {
 	});
 	
 	// bind upnav button to merge the sublist back into the parent
-	$('.upnav a').click(merge_task);
-	
+	$('.upnav a', $newlist).click(merge_task);
 	
 	// bind add and link buttons
+	$('.add', $newlist).click(add_task);
 	
 	
 	// add task notes and check status even when in sublist form
