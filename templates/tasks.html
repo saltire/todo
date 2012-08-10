@@ -50,9 +50,9 @@
 					<div id='tasklist-{{ tasklist["id"] }}' class='tasklist'>
 	{% endif %}
 						<div class='backg'></div>
-						<a class='add' href='#'>add</a>
-						<a class='link' href='{{ root }}/tasklist/{{ tasklist["id"] }}'>link</a>
-						<h2>{{ tasklist['title'] }}</h2>
+						<a class='link' href='{{ root }}/tasklist/{{ tasklist["id"] }}'>&para;</a>
+						<a class='add' href='#'>&#xff0b;</a>
+						<h2 class='tltitle'>{{ tasklist['title'] }}</h2>
 						<ul>
 	{% for task in tasklist['items'] %}
 							<li>

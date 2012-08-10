@@ -64,6 +64,29 @@ def index(tlid=None):
     return render_template('tasks.html', lists=lists, root=root)
 
 
+@app.route('/_update_tasklist', methods=['post'])
+def update_tasklist():
+    patch = {'title': request.form['title']} if request.form.get('title') else {}
+    response = g.gtasks.do_request('tasklists.patch', request.form.get('tasklist'), body=patch)
+    return jsonify(response)
+
+
+@app.route('/_update_task', methods=['post'])
+def update_task():
+    fields = ('title', 'notes', 'updated', 'completed', 'status')
+    #patch = {field: request.form[field] for field in fields if field in request.form}
+    # older syntax for < 2.7 compatibility
+    patch = dict((field, request.form[field]) for field in fields if field in request.form)
+    
+    # javascript null needs to be passed as None so requests will parse it properly
+    for field, value in patch.iteritems():
+        if value == 'null':
+            patch[field] = None
+    
+    response = g.gtasks.do_request('tasks.patch', request.form.get('tasklist'), request.form.get('task'), body=patch)
+    return jsonify(response)
+
+
 @app.route('/_split_task', methods=['get'])
 def split_task():
     pass
@@ -86,28 +109,12 @@ def delete_task():
     return 'deleted'
 
 
-@app.route('/_update_task', methods=['post'])
-def update_task():
-    fields = ('title', 'notes', 'updated', 'completed', 'status')
-    #patch = {field: request.form[field] for field in fields if field in request.form}
-    # older syntax for < 2.7 compatibility
-    patch = dict((field, request.form[field]) for field in fields if field in request.form)
-    
-    # javascript null needs to be passed as None so requests will parse it properly
-    for field, value in patch.iteritems():
-        if value == 'null':
-            patch[field] = None
-    
-    response = g.gtasks.do_request('tasks.patch', request.form.get('tasklist'), request.form.get('task'), body=patch)
-    return repr(response)
-
-
 @app.route('/_move_task', methods=['post'])
 def move_task():
     fields = ('previous', 'parent')
     params = dict((field, request.form[field]) for field in fields if field in request.form)
     response = g.gtasks.do_request('tasks.move', request.form.get('tasklist'), request.form.get('task'), params=params)
-    return repr(response)
+    return jsonify(response)
 
 
 if __name__ == '__main__':  

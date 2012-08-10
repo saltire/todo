@@ -15,7 +15,7 @@ $(function() {
 	});
 	
 	// edit task titles and notes
-	$('.tasktitle, .tasknotes').each(function() {
+	$('.tltitle, .tasktitle, .tasknotes').each(function() {
 		$(this).make_editable();
 	});
 	
@@ -49,7 +49,7 @@ function do_request(method, data, callback) {
 	// send a request to flask, and optionally pass its response to a callback
 	$.post(webroot + '/_' + method, data, (callback !== undefined) ? callback : function(resp) {
 		// obviously temporary default callback
-		alert(resp);
+		alert(JSON.stringify(resp));
 	});
 }
 
@@ -68,107 +68,133 @@ function refresh_view() {
 
 
 $.fn.extend({
+	get_tasklist_id: get_tasklist_id,
+	make_editable: make_editable
+});
+
+
+function get_tasklist_id() {
 	// get id of parent tasklist
-	get_tasklist_id: function() {
-		var $tasklist = $(this).closest('.tasklist');
-		
-		if ($tasklist.hasClass('sublist')) {
-			// class will be 'tasklist sublist-{id}'
-			return $tasklist.attr('data-parent');
-			
-		} else {
-			// id will be 'tasklist-{id}'
-			return $tasklist.attr('id').slice(9);
-		}
-	},
+	var $tasklist = $(this).closest('.tasklist');
 	
+	if ($tasklist.hasClass('sublist')) {
+		// class will be 'tasklist sublist-{id}'
+		return $tasklist.attr('data-parent');
+		
+	} else {
+		// id will be 'tasklist-{id}'
+		return $tasklist.attr('id').slice(9);
+	}
+}
+
+
+function make_editable() {
 	// initializes an element to be editable
-	make_editable: function() {
-		$(this).click(function() {
-			$(this).focus(); // does this work?
-		});
-		$(this).editable({
-			type: $(this).hasClass('tasknotes') ? 'textarea' : 'text',
-			onEdit: function(content) {
-				this.focus(); // this doesn't seem to work
-			},
-			onSubmit: function(content) {
-				var data = {
-					tasklist: this.get_tasklist_id(),
-				};
-				var $task = this.closest('.task');
-				var taskid = $task.attr('id') ? $task.attr('id').slice(5) : null;
+	$(this).keypress(function(e) {
+		// trigger submit when user presses enter
+		if (e.which == 13) {
+			$(this).blur();
+		}
+	}).editable({
+		type: $(this).hasClass('tasknotes') ? 'textarea' : 'text',
+		onSubmit: function(content) {
+			var data = {
+				tasklist: this.get_tasklist_id(),
+			};
+			var $task = this.closest('.task');
+			var taskid = $task.attr('id') ? $task.attr('id').slice(5) : null;
+			
+			var $sublist = this.closest('.sublist');
+			var sublistid = $sublist.length ? $sublist.attr('id').slice(8) : null;
 
-				if (this.hasClass('tasktitle')) {
-					if (content.current == '') {
-						// remove entire task
-						this.closest('li').remove();
-						if (taskid) {
-							data['task'] = taskid;
-							do_request('delete_task', data);
-						}
+			// edit tasklist title
 
-					} else if (content.current != content.previous) {
-						data['title'] = content.current;
-
-						if (taskid) {
-							// update an existing task (already has an id)
-							data['task'] = taskid;
-							do_request('update_task', data);
+			if (this.hasClass('tltitle')) {
+				if (content.current != content.previous) {
+					data['title'] = content.current;
+					if (sublistid) {
+						// change the task title in the parent list
+						$('#task-' + sublistid).children('.tasktitle').html(content.current);
 						
-						} else {
-							if (this.closest('.sublist').length) {
-								data['parent'] = this.closest('.sublist').attr('id').slice(8);
-							}
-							
-							// create a new task and assign it an id
-							do_request('add_task', data, function(resp) {
-								$task.attr('id', 'task-' + resp.id);
-								alert('added');
-							});
-							$task.find('input:checkbox').change(toggle_checkboxes);
-						}
+						// update the sublist's task title
+						data['task'] = sublistid;
+						do_request('update_task', data)
+						
+					} else {
+						// update the tasklist's title
+						do_request('update_tasklist', data)
 					}
-
-				} else if (this.hasClass('tasknotes')) {
-					if (content.current == '') {
-						// remove note html
-						this.remove();
-						$task.find('.notetoggle').html('+');
-					}
-
-					if (content.current != content.previous) {
-						// update task with new notes (or lack thereof)
+				}
+				
+			// edit task title
+			
+			} else if (this.hasClass('tasktitle')) {
+				if (content.current == '') {
+					// remove entire task
+					this.closest('li').remove();
+					if (taskid) {
 						data['task'] = taskid;
-						data['notes'] = content.current;
-						do_request('update_task', data);
+						do_request('delete_task', data);
 					}
 
+				} else if (content.current != content.previous) {
+					data['title'] = content.current;
+
+					if (taskid) {
+						// update an existing task (already has an id)
+						data['task'] = taskid;
+						do_request('update_task', data);
+					
+					} else {
+						if (this.closest('.sublist').length) {
+							data['parent'] = this.closest('.sublist').attr('id').slice(8);
+						}
+						
+						// create a new task and assign it an id
+						do_request('add_task', data, function(resp) {
+							$task.attr('id', 'task-' + resp.id);
+							alert(JSON.stringify(resp));
+						});
+						$task.find('input:checkbox').change(toggle_checkboxes);
+					}
+				}
+				
+			// edit task notes
+
+			} else if (this.hasClass('tasknotes')) {
+				if (content.current == '') {
+					// remove note html
+					this.remove();
+					$task.find('.notetoggle').html('+');
+				}
+
+				if (content.current != content.previous) {
+					// update task with new notes (or lack thereof)
+					data['task'] = taskid;
+					data['notes'] = content.current;
+					do_request('update_task', data);
 				}
 			}
-			
-		}).keypress(function(e) {
-			// trigger submit when user presses enter
-			if (e.which == 13) {
-				$(this).blur();
-			}
-		});
-		
-		return $(this);
-	}
-});
+		}
+	});
+	
+	return $(this);
+}
 
 
 function toggle_checkboxes(e) {
 	e.preventDefault();
 	
 	// find out what other tasks' statuses are affected by this and submit them
+	
+	// if it's currently unchecked
 	if (!$(this).closest('li').children('.task').hasClass('completed')) {
 		// check, and also check all descendants
 		$(this).closest('li').find('.task').not('.completed')
 			.addClass('completed').each(submit_check_status)
 			.find('.checkbox').html('&#x2713;');
 	
+	// if it's currently checked
 	} else {
 		// uncheck, and uncheck all ancestors and descendants (but not siblings)
 		$(this).closest('li').find('.checkbox').html('&nbsp;');
@@ -251,6 +277,7 @@ function toggle_notes(e) {
 	}
 }
 
+
 function split_task(e) {
 	e.preventDefault();
 	var $task = $(this).closest('.task');
@@ -266,11 +293,11 @@ function split_task(e) {
 		$('<div />').addClass('tasklist sublist').attr('id', 'sublist-' + $taskid).attr('data-parent', $tlid).append(
 			$('<div />').addClass('backg')
 		).append(
-			$('<a href="#" />').addClass('add').html('add')
+			$('<a href="link" />').addClass('link').html('&para;')
 		).append(
-			$('<a href="link" />').addClass('link').html('link')
+				$('<a href="#" />').addClass('add').html('&#xff0b;')
 		).append(
-			$('<h2 />').html($task.children('.tasktitle').html())
+			$('<h2 />').addClass('tltitle').html($task.children('.tasktitle').html()).make_editable()
 		).append(
 			$task.siblings('ul').clone(true, true)
 		)
@@ -297,7 +324,6 @@ function split_task(e) {
 	// bind add and link buttons
 	$('.add', $newlist).click(add_task);
 	
-	
 	// add task notes and check status even when in sublist form
 	
 }
@@ -319,8 +345,9 @@ function merge_task(e) {
 	$task.closest('.tasklist').children('a').fadeIn();
 	$task.closest('.tasklist').children('ul').slideDown();
 	
-	// if parent task is top-level, then fade in the horizontal nav
+	// if parent task is top-level, then show top-level lists and fade in the nav
 	if ($task.closest('.tasklists').length) {
+		$('.tasklists .tasklist > ul').slideDown();
 		$('.tasknav').fadeIn();
 	}
 	
