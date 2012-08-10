@@ -16,11 +16,12 @@
 .tasklist { width: 500px; margin: 0 34px; padding: 20px 15px; border: 1px dotted #f1f1da;
 	font-size: 16px; vertical-align: top; white-space: normal; overflow: hidden;
 	position: relative; display: inline-block; }
-.tasklist .tltitle { border-bottom: 1px dotted #ffffff; margin: 0 10px 15px; padding: 0 50px;
+.tasklist .tltitle { border-bottom: 1px dotted #ffffff; margin: 0 10px; padding: 0 50px;
 	font-size: 24px; text-align: center; }
 .tasklist > a { width: 18px; margin: 5px 7px 0 0; font-size: 15px; text-align: center;
 	line-height: 18px; float: right; }
-.tasklist ul { margin: 0; padding: 0; list-style-type: none; }
+.tasklist > ul { margin-top: 15px; }
+.tasklist ul { padding: 0; list-style-type: none; }
 .tasklist ul li { }
 .tasklist ul ul { margin-left: 25px; /*border-left: 1px solid #fff;*/ }
 
