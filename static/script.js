@@ -10,11 +10,11 @@ $(function() {
 	$('.tasknav .new').click(false).click(create_new_tasklist);
 	
 	// animate horizontal paging between lists
-	refresh_arrows();
-	$('.tasknav .arrows a').click(false).click(function() {
+	$('.tasknav .arrows a').hide().click(false).click(function() {
 		var oper = $(this).hasClass('next') ? '-=' : '+=';
 		$('.tasklists').animate({left: oper + $('.tasklist-view').width() + 'px'}, 250, refresh_arrows);
 	});
+	refresh_arrows();
 	
 	// edit task titles and notes
 	$('.tltitle, .tasktitle, .tasknotes').each(function() {
@@ -59,12 +59,15 @@ function do_request(method, data, callback) {
 function refresh_arrows() {
 	// show or hide arrow buttons, change any other effects after list switch
 	listpos = -parseInt($('.tasklists').css('left')) / $('.tasklist-view').width();
-	$('.tasknav .arrows a').hide();
 	if (listpos > 0) {
-		$('.tasknav .prev').show();
+		$('.tasknav .prev').fadeIn(150);
+	} else {
+		$('.tasknav .prev').fadeOut(150);
 	}
-	if (listpos < $('.tasklist').length - 1) {
-		$('.tasknav .next').show();
+	if (listpos < $('.tasklist-column').length - 1) {
+		$('.tasknav .next').fadeIn(150);
+	} else {
+		$('.tasknav .next').fadeOut(150);
 	}
 }
 
@@ -286,40 +289,40 @@ function toggle_notes(e) {
 
 function split_task(e) {
 	var $task = $(this).closest('.task');
+	var $parent = $(this).closest('.tasklist');
 	var $taskid = $task.attr('id').slice(5);
 	var $tlid = $(this).get_tasklist_id();
 	
 	// create new sublist
-	var $newlist = $('<div />').addClass('tasklist-view').append(
+	var $newlist = $('<div />').addClass('tasklist sublist').attr('id', 'sublist-' + $taskid).attr('data-parent', $tlid).append(
+		$('<div />').addClass('backg')
+	).append(
 		$('<div />').addClass('upnav').append(
 			$('<a href="#" />').html('&#x25b2;')
 		)
 	).append(
-		$('<div />').addClass('tasklist sublist').attr('id', 'sublist-' + $taskid).attr('data-parent', $tlid).append(
-			$('<div />').addClass('backg')
-		).append(
-			$('<a href="link" />').addClass('link').html('&para;')
-		).append(
-				$('<a href="#" />').addClass('add').html('&#xff0b;')
-		).append(
-			$('<h2 />').addClass('tltitle').html($task.children('.tasktitle').html()).make_editable()
-		).append(
-			$task.siblings('ul').clone(true, true)
-		)
+		$('<a href="link" />').addClass('link').html('&para;')
+	).append(
+			$('<a href="#" />').addClass('add').html('&#xff0b;')
+	).append(
+		$('<h2 />').addClass('tltitle').html($task.children('.tasktitle').html()).make_editable()
+	).append(
+		$task.siblings('ul').clone(true, true)
 	).hide();
 	
 	// add a new listview below with a new list
-	$task.closest('.tasklist-view').after($newlist);
+	$parent.after($newlist);
 	$newlist.slideDown();
 	
-	// hide the parent list (and all top-level lists), plus parent's nav and links
-	$('.tasknav').fadeOut();
-	$task.closest('.tasklist-view').children('.upnav').slideUp();
-	$task.closest('.tasklist').children('a').fadeOut();
-	$task.closest('.tasklist').children('ul').add('.tasklists .tasklist > ul').slideUp();
+	// hide the parent list's tasks and controls
+	$parent.children('a, .upnav').fadeOut();
+	$parent.children('ul').slideUp();
+	if ($parent.hasClass('sublist')) {
+		$parent.animate({'margin-top': '10px'});
+	}
 	
 	// remove the original task tree when both animations are done
-	$task.closest('.tasklist').children('ul').add($newlist).promise().done(function() {
+	$parent.children('ul').add($newlist).promise().done(function() {
 		$task.siblings('ul').remove();
 	});
 	
@@ -328,37 +331,29 @@ function split_task(e) {
 	
 	// bind add and link buttons
 	$('.add', $newlist).click(false).click(add_task);
-	
-	// add task notes and check status even when in sublist form
-	
 }
 
 
 function merge_task(e) {
-	var $sublist = $(this).parent().siblings('.sublist');
+	var $sublist = $(this).closest('.sublist');
 	var $task = $('#task-' + $sublist.attr('id').slice(8));
+	var $parent = $task.closest('.tasklist');
 	
 	$task.after($sublist.children('ul').clone(true, true));
 	
 	// hide this view
-	$sublist.closest('.tasklist-view').slideUp();
+	$sublist.slideUp();
 	
-	// show old view and all its extras
-	$task.closest('.tasklist-view').children('.upnav').slideDown();
-	$task.closest('.tasklist').children('a').fadeIn();
-	$task.closest('.tasklist').children('ul').slideDown();
-	
-	// if parent task is top-level, then show top-level lists and fade in the nav
-	if ($task.closest('.tasklists').length) {
-		$('.tasklists .tasklist > ul').slideDown();
-		$('.tasknav').fadeIn();
+	// show parent tasklist and its controls
+	$parent.children('a, .upnav').fadeIn();
+	$parent.children('ul, .upnav').slideDown();
+	if ($parent.hasClass('sublist')) {
+		$parent.animate({'margin-top': '60px'});
 	}
 	
 	// remove the lowest task view when animations are done
-	$sublist.closest('.tasklist-view').add(
-		$task.closest('.tasklist').children('ul')
-	).promise().done(function() {
-		$sublist.closest('.tasklist-view').remove();
+	$parent.children('ul').add($sublist).promise().done(function() {
+		$sublist.remove();
 	});
 }
 

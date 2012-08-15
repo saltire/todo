@@ -5,28 +5,28 @@
 
 {% macro draw_task(task) %}
 	{% if task['completed'] %}
-							<div id='task-{{ task["id"] }}' class='task completed'>
-								<a class='checkbox'>&#x2713;</a>
+								<div id='task-{{ task["id"] }}' class='task completed'>
+									<a class='checkbox'>&#x2713;</a>
 	{% else %}
-							<div id='task-{{ task["id"] }}' class='task'>
-								<a class='checkbox'>&nbsp;</a>
+								<div id='task-{{ task["id"] }}' class='task'>
+									<a class='checkbox'>&nbsp;</a>
 	{% endif %}
-								<a class='delete control' href='#'>&#xd7;</a>
-								<a class='notetoggle control' href='#'>{% if task['notes'] %}&ndash;{% else %}+{% endif %}</a>
-								<a class='split control' href='#'>s</a>
-								<span class='tasktitle'>{{ task['title'] }}</span>
+									<a class='delete control' href='#'>&#xd7;</a>
+									<a class='notetoggle control' href='#'>{% if task['notes'] %}&ndash;{% else %}+{% endif %}</a>
+									<a class='split control' href='#'>s</a>
+									<span class='tasktitle'>{{ task['title'] }}</span>
 	{% if task['notes'] %}
-								<span class='tasknotes'>{{ task['notes'] }}</span>
+									<span class='tasknotes'>{{ task['notes'] }}</span>
 	{% endif %}
-							</div>
+								</div>
 	{% if task['children'] %}
-							<ul>
+								<ul>
 		{% for child in task['children'] %}
-								<li>
+									<li>
 			{{ draw_task(child) }}
-								</li>
+									</li>
 		{% endfor %}
-							</ul>
+								</ul>
 	{% endif %}
 {% endmacro %}
 
@@ -47,22 +47,24 @@
 			<div class='tasklist-view'>
 				<div class='tasklists'>
 {% for tasklist in lists %}
+					<div class='tasklist-column'>
 	{% if tasklist['start'] %}
-					<div id='tasklist-{{ tasklist["id"] }}' class='tasklist start'>
+						<div id='tasklist-{{ tasklist["id"] }}' class='tasklist start'>
 	{% else %}
-					<div id='tasklist-{{ tasklist["id"] }}' class='tasklist'>
+						<div id='tasklist-{{ tasklist["id"] }}' class='tasklist'>
 	{% endif %}
-						<div class='backg'></div>
-						<a class='link' href='{{ root }}/tasklist/{{ tasklist["id"] }}'>&para;</a>
-						<a class='add' href='#'>&#xff0b;</a>
-						<h2 class='tltitle'>{{ tasklist['title'] }}</h2>
-						<ul>
+							<div class='backg'></div>
+							<a class='link' href='{{ root }}/tasklist/{{ tasklist["id"] }}'>&para;</a>
+							<a class='add' href='#'>&#xff0b;</a>
+							<h2 class='tltitle'>{{ tasklist['title'] }}</h2>
+							<ul>
 	{% for task in tasklist['items'] %}
-							<li>
+								<li>
 						{{ draw_task(task) }}
-							</li>
+								</li>
 	{% endfor %}
-						</ul>
+							</ul>
+						</div>
 					</div>
 {% endfor %}
 				</div>
