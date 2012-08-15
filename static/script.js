@@ -22,19 +22,19 @@ $(function() {
 	});
 	
 	// check boxes
-	$('.task .checkbox').click(toggle_checkboxes);
+	$('.task .checkbox').click(false).click(toggle_checkboxes);
 
 	// add task
-	$('.tasklist .add').click(add_task);
+	$('.tasklist .add').click(false).click(add_task);
 
 	// delete task
-	$('.task .delete').click(delete_task);
+	$('.task .delete').click(false).click(delete_task);
 	
 	// show/hide/create notes
-	$('.task .notetoggle').click(toggle_notes);
+	$('.task .notetoggle').click(false).click(toggle_notes);
 	
 	// split task into sublist
-	$('.task .split').click(split_task);
+	$('.task .split').click(false).click(split_task);
 	
 	// sort list
 	$('.tasklists > .tasklist > ul').nestedSortable({
@@ -157,7 +157,6 @@ function make_editable() {
 							$task.attr('id', 'task-' + resp.id);
 							alert(JSON.stringify(resp));
 						});
-						$task.find('input:checkbox').change(toggle_checkboxes);
 					}
 				}
 				
@@ -194,8 +193,6 @@ function create_new_tasklist(e) {
 
 
 function toggle_checkboxes(e) {
-	e.preventDefault();
-	
 	// find out what other tasks' statuses are affected by this and submit them
 	
 	// if it's currently unchecked
@@ -237,16 +234,16 @@ function submit_check_status() {
 
 
 function add_task(e) {
-	e.preventDefault();
-	
 	$(this).closest('.tasklist').children('ul').prepend(
 		$('<li />').append(
 			$('<div />').addClass('task').append(
-				$('<a>&nbsp;</a>').addClass('checkbox')
+				$('<a>&nbsp;</a>').addClass('checkbox').click(false).click(toggle_checkboxes)
 			).append(
-				$('<a href="#" />').addClass('delete control').html('&#xd7;').click(delete_task)
+				$('<a href="#" />').addClass('delete control').html('&#xd7;').click(false).click(delete_task)
 			).append(
-				$('<a href="#" />').addClass('notetoggle control').html('+').click(toggle_notes)
+					$('<a href="#" />').addClass('notetoggle control').html('+').click(false).click(toggle_notes)
+			).append(
+					$('<a href="#" />').addClass('split control').html('s').click(false).click(split_task)
 			).append(
 				$('<span />').addClass('tasktitle').make_editable().click()
 			)
@@ -256,7 +253,6 @@ function add_task(e) {
 
 
 function delete_task(e) {
-	e.preventDefault();
 	var data = {
 		tasklist: $(this).get_tasklist_id(),
 		task: $(this).closest('.task').attr('id').slice(5),
@@ -268,7 +264,6 @@ function delete_task(e) {
 
 
 function toggle_notes(e) {
-	e.preventDefault();
 	var $task = $(this).closest('.task');
 	
 	if (!$task.find('.tasknotes:visible').length) {
@@ -290,7 +285,6 @@ function toggle_notes(e) {
 
 
 function split_task(e) {
-	e.preventDefault();
 	var $task = $(this).closest('.task');
 	var $taskid = $task.attr('id').slice(5);
 	var $tlid = $(this).get_tasklist_id();
@@ -330,10 +324,10 @@ function split_task(e) {
 	});
 	
 	// bind upnav button to merge the sublist back into the parent
-	$('.upnav a', $newlist).click(merge_task);
+	$('.upnav a', $newlist).click(false).click(merge_task);
 	
 	// bind add and link buttons
-	$('.add', $newlist).click(add_task);
+	$('.add', $newlist).click(false).click(add_task);
 	
 	// add task notes and check status even when in sublist form
 	
@@ -341,8 +335,6 @@ function split_task(e) {
 
 
 function merge_task(e) {
-	e.preventDefault();
-	
 	var $sublist = $(this).parent().siblings('.sublist');
 	var $task = $('#task-' + $sublist.attr('id').slice(8));
 	
