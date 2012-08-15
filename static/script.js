@@ -6,12 +6,14 @@ $(function() {
 		$('.tasklists').css('left', -index * $('.tasklist-view').width() + 'px');
 	}
 	
-	refresh_view();
+	// create new task list
+	$('.tasknav .new').click(false).click(create_new_tasklist);
 	
 	// animate horizontal paging between lists
-	$('.tasknav a').click(false).click(function() {
+	refresh_arrows();
+	$('.tasknav .arrows a').click(false).click(function() {
 		var oper = $(this).hasClass('next') ? '-=' : '+=';
-		$('.tasklists').animate({left: oper + $('.tasklist-view').width() + 'px'}, 250, refresh_view);
+		$('.tasklists').animate({left: oper + $('.tasklist-view').width() + 'px'}, 250, refresh_arrows);
 	});
 	
 	// edit task titles and notes
@@ -54,10 +56,10 @@ function do_request(method, data, callback) {
 }
 
 
-function refresh_view() {
-	// show or hide nav buttons, change any other effects after list switch
+function refresh_arrows() {
+	// show or hide arrow buttons, change any other effects after list switch
 	listpos = -parseInt($('.tasklists').css('left')) / $('.tasklist-view').width();
-	$('.tasknav a').hide();
+	$('.tasknav .arrows a').hide();
 	if (listpos > 0) {
 		$('.tasknav .prev').show();
 	}
@@ -179,6 +181,15 @@ function make_editable() {
 	});
 	
 	return $(this);
+}
+
+
+// event functions
+
+
+function create_new_tasklist(e) {
+	
+	
 }
 
 
