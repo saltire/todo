@@ -88,7 +88,7 @@ function get_tasklist_id() {
 		
 	} else {
 		// id will be 'tasklist-{id}'
-		return $tasklist.attr('id').slice(9);
+		return $tasklist.attr('id') ? $tasklist.attr('id').slice(9) : null;
 	}
 }
 
@@ -106,6 +106,7 @@ function make_editable() {
 			var data = {
 				tasklist: this.get_tasklist_id(),
 			};
+			var $tasklist = this.closest('.tasklist');
 			var $task = this.closest('.task');
 			var taskid = $task.attr('id') ? $task.attr('id').slice(5) : null;
 			
@@ -115,19 +116,36 @@ function make_editable() {
 			// edit tasklist title
 
 			if (this.hasClass('tltitle')) {
-				if (content.current != content.previous) {
-					data['title'] = content.current;
-					if (sublistid) {
-						// change the task title in the parent list
-						$('#task-' + sublistid).children('.tasktitle').html(content.current);
-						
-						// update the sublist's task title
-						data['task'] = sublistid;
-						do_request('update_task', data)
+				if (data['tasklist'] === null) {
+					if (content.current != content.previous) {
+						// create new tasklist and assign it an id
+						data['title'] = content.current;
+						do_request('create_tasklist', data, function(resp) {
+							$tasklist.attr('id', 'tasklist-' + resp.id);
+							alert(JSON.stringify(resp));
+						});
 						
 					} else {
-						// update the tasklist's title
-						do_request('update_tasklist', data)
+						// remove tasklist and scroll back
+						
+					}
+					
+				} else {
+					
+					if (content.current != content.previous) {
+						data['title'] = content.current;
+						if (sublistid) {
+							// change the task title in the parent list
+							$('#task-' + sublistid).children('.tasktitle').html(content.current);
+							
+							// update the sublist's task title
+							data['task'] = sublistid;
+							do_request('update_task', data);
+							
+						} else {
+							// update the tasklist's title
+							do_request('update_tasklist', data);
+						}
 					}
 				}
 				
@@ -190,8 +208,21 @@ function make_editable() {
 
 
 function create_new_tasklist(e) {
-	
-	
+	$('.tasklists').append(
+		$('<div />').addClass('tasklist-column').append(
+			$('<div />').addClass('tasklist').append(
+				$('<div />').addClass('backg')
+			).append(
+				$('<a href="#" />').addClass('link').html('&para;')
+			).append(
+				$('<a href="#" />').addClass('add').html('&#xff0b;').click(false).click(add_task)
+			).append(
+				$('<h2 />').addClass('tltitle').html('New Tasklist').make_editable().click()
+			)
+		)
+	);
+
+	$('.tasklists').animate({left: -($('.tasklist-column').length - 1) * $('.tasklist-view').width() + 'px'}, refresh_arrows);
 }
 
 

@@ -54,14 +54,23 @@ def index(tlid=None):
     
     # build a tree of tasks for each tasklist
     lists = []
-    for tasklist in g.gtasks.do_request('tasklists.list')['items']:
+    for tasklist in g.gtasks.do_request('tasklists.list').get('items', []):
         if tlid == tasklist['id']:
             # scroll straight to the position of this tasklist
             tasklist['start'] = True
-        tasklist['items'] = get_child_tasks(g.gtasks.do_request('tasks.list', tasklist['id'])['items'])
+        tasklist['items'] = get_child_tasks(g.gtasks.do_request('tasks.list', tasklist['id']).get('items', []))
         lists.append(tasklist)
         
     return render_template('tasks.html', lists=lists, root=root)
+
+
+@app.route('/_create_tasklist', methods=['post'])
+def create_tasklist():
+    body = {
+        'title': request.form.get('title')
+        }
+    response = g.gtasks.do_request('tasklists.insert', body=body)
+    return jsonify(response)
 
 
 @app.route('/_update_tasklist', methods=['post'])
@@ -69,27 +78,6 @@ def update_tasklist():
     patch = {'title': request.form['title']} if request.form.get('title') else {}
     response = g.gtasks.do_request('tasklists.patch', request.form.get('tasklist'), body=patch)
     return jsonify(response)
-
-
-@app.route('/_update_task', methods=['post'])
-def update_task():
-    fields = ('title', 'notes', 'updated', 'completed', 'status')
-    #patch = {field: request.form[field] for field in fields if field in request.form}
-    # older syntax for < 2.7 compatibility
-    patch = dict((field, request.form[field]) for field in fields if field in request.form)
-    
-    # javascript null needs to be passed as None so requests will parse it properly
-    for field, value in patch.iteritems():
-        if value == 'null':
-            patch[field] = None
-    
-    response = g.gtasks.do_request('tasks.patch', request.form.get('tasklist'), request.form.get('task'), body=patch)
-    return jsonify(response)
-
-
-@app.route('/_split_task', methods=['get'])
-def split_task():
-    pass
 
 
 @app.route('/_add_task', methods=['post'])
@@ -107,6 +95,27 @@ def add_task():
 def delete_task():
     g.gtasks.do_request('tasks.delete', request.form.get('tasklist'), request.form.get('task'))
     return 'deleted'
+
+
+@app.route('/_update_task', methods=['post'])
+def update_task():
+    fields = ('title', 'notes', 'completed', 'status')
+    #patch = {field: request.form[field] for field in fields if field in request.form}
+    # older syntax for < 2.7 compatibility
+    patch = dict((field, request.form[field]) for field in fields if field in request.form)
+    
+    # javascript null needs to be passed as None so requests will parse it properly
+    for field, value in patch.iteritems():
+        if value == 'null':
+            patch[field] = None
+    
+    response = g.gtasks.do_request('tasks.patch', request.form.get('tasklist'), request.form.get('task'), body=patch)
+    return jsonify(response)
+
+
+@app.route('/_split_task', methods=['get'])
+def split_task():
+    pass
 
 
 @app.route('/_move_task', methods=['post'])
