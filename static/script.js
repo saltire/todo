@@ -34,7 +34,7 @@ $(function() {
 	$('.task .checkbox').click(false).click(toggle_checkboxes);
 
 	// sort list
-	$('.tasklists > .tasklist > ul').nestedSortable({
+	$('.tasklist > ul').nestedSortable({
 		listType: 'ul',
 		items: 'li',
 		toleranceElement: '> div',
@@ -237,6 +237,8 @@ function delete_tasklist(e) {
 		
 		$tlcolumn.css({width: colwidth + 'px', height: '1px'});
 		$(this).closest('.tasklist').fadeOut(250, function() {
+			
+			// if this is the first tasklist, slide the others left
 			if ($tlcolumn.index() == 0 && $('.tasklist-column').length > 1) {
 				$('.tasklists').animate({left: '-=' + colwidth + 'px'}, 250, function() {
 					$tlcolumn.remove();
@@ -245,6 +247,7 @@ function delete_tasklist(e) {
 				});
 				
 			} else {
+				// slide the view left to the previous tasklist
 				$('.tasklists').animate({left: '+=' + colwidth + 'px'}, 250, function() {
 					$tlcolumn.remove();
 					refresh_arrows();
@@ -324,7 +327,9 @@ function remove_task(e) {
 		tasklist: $(this).get_tasklist_id(),
 		task: $(this).closest('.task').attr('id').slice(5),
 	};
-	$(this).closest('li').remove();
+	$(this).closest('li').fadeOut(function() {
+		$(this).remove();
+	});
 	
 	do_request('remove_task', data);
 }
@@ -361,25 +366,26 @@ function split_task(e) {
 	var $newlist = $('<div />').addClass('tasklist sublist').attr('id', 'sublist-' + $taskid).attr('data-parent', $tlid).append(
 		$('<div />').addClass('backg')
 	).append(
-		$('<div />').addClass('upnav').append(
+		$('<div />').addClass('upnav').click(false).click(merge_task).append(
 			$('<a href="#" />').html('&#x25b2;')
 		)
 	).append(
-		$('<a href="link" />').addClass('link').html('&para;')
-	).append(
-			$('<a href="#" />').addClass('add').html('&#xff0b;')
-	).append(
-		$('<h2 />').addClass('tltitle').html($task.children('.tasktitle').html()).make_editable()
+		$('<div />').addClass('titlebar').append(
+			$('<span />').addClass('tltitle').html($task.children('.tasktitle').html()).make_editable()
+		).append(
+			$('<div />').addClass('controls').append(
+				$('<a href="#" />').addClass('add').html('&#xff0b;').click(false).click(add_task)
+			//).append(
+			//	$('<a />').addClass('link').attr('href', '#').html('&para;')
+			)
+		)
 	).append(
 		$task.siblings('ul').clone(true, true)
-	).hide();
-	
-	// add a new listview below with a new list
-	$parent.after($newlist);
-	$newlist.slideDown();
+	).hide().insertAfter($parent).slideDown();
 	
 	// hide the parent list's tasks and controls
-	$parent.children('a, .upnav').fadeOut();
+	$('.upnav', $parent).fadeOut();
+	$('.titlebar .controls', $parent).addClass('no-hover');
 	$parent.children('ul').slideUp();
 	if ($parent.hasClass('sublist')) {
 		$parent.animate({'margin-top': '10px'});
@@ -389,12 +395,6 @@ function split_task(e) {
 	$parent.children('ul').add($newlist).promise().done(function() {
 		$task.siblings('ul').remove();
 	});
-	
-	// bind upnav button to merge the sublist back into the parent
-	$('.upnav a', $newlist).click(false).click(merge_task);
-	
-	// bind add and link buttons
-	$('.add', $newlist).click(false).click(add_task);
 }
 
 
@@ -409,8 +409,9 @@ function merge_task(e) {
 	$sublist.slideUp();
 	
 	// show parent tasklist and its controls
-	$parent.children('a, .upnav').fadeIn();
-	$parent.children('ul, .upnav').slideDown();
+	$('.upnav', $parent).fadeIn();
+	$('.titlebar .controls', $parent).removeClass('no-hover');
+	$parent.children('ul').slideDown();
 	if ($parent.hasClass('sublist')) {
 		$parent.animate({'margin-top': '60px'});
 	}

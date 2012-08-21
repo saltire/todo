@@ -1,8 +1,12 @@
 
+/* layout containers */
+
 .taskmain { position: relative; }
+.tasklist-view { width: 600px; margin: 0 auto 10px; overflow: hidden; }
+.tasklists { white-space: nowrap; font-size: 0; position: relative; left: 0; }
 
 
-/* buttons outside lists */
+/* side buttons */
 
 .tasknav { width: 100%; text-align: center; position: absolute; top: 0; left: 0; }
 .tasknav a { width: 30px; padding: 5px; font-size: 30px; text-align: center; line-height: 30px; }
@@ -17,12 +21,6 @@
 .upnav a { width: 30px; padding: 5px; font-size: 30px; line-height: 30px; display: inline-block; }
 
 
-/* horizontal tasklist container */
-
-.tasklist-view { width: 600px; margin: 0 auto 10px; overflow: hidden; }
-.tasklists { white-space: nowrap; font-size: 0; position: relative; left: 0; }
-
-
 /* tasklists */
 
 .tasklist-column { vertical-align: top; display: inline-block; }
@@ -35,6 +33,7 @@
 .tasklist .titlebar .controls a { width: 18px; margin-left: 2px; font-size: 15px; text-align: center;
 	line-height: 18px; float: left; }
 .tasklist .titlebar:hover .controls { display: block; }
+.tasklist .titlebar:hover .controls.no-hover { display: none; }
 
 .tasklist .titlebar .tltitle { font-size: 24px; font-weight: bold; letter-spacing: -0.06em;
 	position: relative; z-index: 2; }
