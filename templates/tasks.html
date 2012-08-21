@@ -11,9 +11,11 @@
 								<div id='task-{{ task["id"] }}' class='task'>
 									<a class='checkbox'>&nbsp;</a>
 	{% endif %}
-									<a class='delete control' href='#'>&#xd7;</a>
-									<a class='notetoggle control' href='#'>{% if task['notes'] %}&ndash;{% else %}+{% endif %}</a>
-									<a class='split control' href='#'>s</a>
+									<div class='controls'>
+										<a class='notetoggle' href='#'>{% if task['notes'] %}&ndash;{% else %}+{% endif %}</a>
+										<a class='split' href='#'>s</a>
+										<a class='remove' href='#'>&#xd7;</a>
+									</div>
 									<span class='tasktitle'>{{ task['title'] }}</span>
 	{% if task['notes'] %}
 									<span class='tasknotes'>{{ task['notes'] }}</span>
@@ -54,8 +56,11 @@
 						<div id='tasklist-{{ tasklist["id"] }}' class='tasklist'>
 	{% endif %}
 							<div class='backg'></div>
-							<a class='link' href='{{ root }}/tasklist/{{ tasklist["id"] }}'>&para;</a>
-							<a class='add' href='#'>&#xff0b;</a>
+							<div class='controls'>
+								<a class='add' href='#'>&#xff0b;</a>
+								<a class='link' href='{{ root }}/tasklist/{{ tasklist["id"] }}'>&para;</a>
+								<a class='delete' href='#'>&#x2715;</a>
+							</div>
 							<h2 class='tltitle'>{{ tasklist['title'] }}</h2>
 							<ul>
 	{% for task in tasklist['items'] %}

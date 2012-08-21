@@ -56,7 +56,7 @@ def index(tlid=None):
     lists = []
     for tasklist in g.gtasks.do_request('tasklists.list').get('items', []):
         if tlid == tasklist['id']:
-            # scroll straight to the position of this tasklist
+            # flag to tell javascript to scroll straight to the position of this tasklist
             tasklist['start'] = True
         tasklist['items'] = get_child_tasks(g.gtasks.do_request('tasks.list', tasklist['id']).get('items', []))
         lists.append(tasklist)
@@ -71,6 +71,12 @@ def create_tasklist():
         }
     response = g.gtasks.do_request('tasklists.insert', body=body)
     return jsonify(response)
+
+
+@app.route('/_delete_tasklist', methods=['post'])
+def delete_tasklist():
+    g.gtasks.do_request('tasklists.delete', request.form.get('tasklist'))
+    return 'deleted tasklist'
 
 
 @app.route('/_update_tasklist', methods=['post'])
@@ -91,10 +97,10 @@ def add_task():
     return jsonify(response)
 
 
-@app.route('/_delete_task', methods=['post'])
-def delete_task():
+@app.route('/_remove_task', methods=['post'])
+def remove_task():
     g.gtasks.do_request('tasks.delete', request.form.get('tasklist'), request.form.get('task'))
-    return 'deleted'
+    return 'deleted task'
 
 
 @app.route('/_update_task', methods=['post'])
@@ -113,17 +119,17 @@ def update_task():
     return jsonify(response)
 
 
-@app.route('/_split_task', methods=['get'])
-def split_task():
-    pass
-
-
 @app.route('/_move_task', methods=['post'])
 def move_task():
     fields = ('previous', 'parent')
     params = dict((field, request.form[field]) for field in fields if field in request.form)
     response = g.gtasks.do_request('tasks.move', request.form.get('tasklist'), request.form.get('task'), params=params)
     return jsonify(response)
+
+
+@app.route('/_promote_task', methods=['get'])
+def promote_task():
+    pass
 
 
 if __name__ == '__main__':  

@@ -6,15 +6,24 @@ $(function() {
 		$('.tasklists').css('left', -index * $('.tasklist-view').width() + 'px');
 	}
 	
-	// create new task list
-	$('.tasknav .new').click(false).click(create_new_tasklist);
-	
 	// animate horizontal paging between lists
 	$('.tasknav .arrows a').hide().click(false).click(function() {
 		var oper = $(this).hasClass('next') ? '-=' : '+=';
 		$('.tasklists').animate({left: oper + $('.tasklist-view').width() + 'px'}, 250, refresh_arrows);
 	});
 	refresh_arrows();
+	
+	// create new task list
+	$('.tasknav .new').click(false).click(create_new_tasklist);
+	
+	// tasklist controls
+	$('.tasklist .add').click(false).click(add_task);
+	$('.tasklist .delete').click(false).click(delete_tasklist);
+
+	// task controls
+	$('.task .notetoggle').click(false).click(toggle_notes);
+	$('.task .split').click(false).click(split_task);
+	$('.task .remove').click(false).click(remove_task);
 	
 	// edit task titles and notes
 	$('.tltitle, .tasktitle, .tasknotes').each(function() {
@@ -24,18 +33,6 @@ $(function() {
 	// check boxes
 	$('.task .checkbox').click(false).click(toggle_checkboxes);
 
-	// add task
-	$('.tasklist .add').click(false).click(add_task);
-
-	// delete task
-	$('.task .delete').click(false).click(delete_task);
-	
-	// show/hide/create notes
-	$('.task .notetoggle').click(false).click(toggle_notes);
-	
-	// split task into sublist
-	$('.task .split').click(false).click(split_task);
-	
 	// sort list
 	$('.tasklists > .tasklist > ul').nestedSortable({
 		listType: 'ul',
@@ -127,25 +124,26 @@ function make_editable() {
 						
 					} else {
 						// remove tasklist and scroll back
-						
+						$tasklist.fadeOut(250, function() {
+							$(this).closest('.tasklist-column').remove();
+							$('.tasklists').animate({left: '+=' + $('.tasklist-view').width() + 'px'}, 250, refresh_arrows);
+						});
+									
 					}
 					
-				} else {
-					
-					if (content.current != content.previous) {
-						data['title'] = content.current;
-						if (sublistid) {
-							// change the task title in the parent list
-							$('#task-' + sublistid).children('.tasktitle').html(content.current);
-							
-							// update the sublist's task title
-							data['task'] = sublistid;
-							do_request('update_task', data);
-							
-						} else {
-							// update the tasklist's title
-							do_request('update_tasklist', data);
-						}
+				} else if (content.current != content.previous) {
+					data['title'] = content.current;
+					if (sublistid) {
+						// change the task title in the parent list
+						$('#task-' + sublistid).children('.tasktitle').html(content.current);
+						
+						// update the sublist's task title
+						data['task'] = sublistid;
+						do_request('update_task', data);
+						
+					} else {
+						// update the tasklist's title
+						do_request('update_tasklist', data);
 					}
 				}
 				
@@ -213,16 +211,47 @@ function create_new_tasklist(e) {
 			$('<div />').addClass('tasklist').append(
 				$('<div />').addClass('backg')
 			).append(
-				$('<a href="#" />').addClass('link').html('&para;')
+				$('<div />').addClass('controls').append(
+					$('<a href="#" />').addClass('add').html('&#xff0b;').click(false).click(add_task)
+				).append(
+					$('<a href="#" />').addClass('link').html('&para;')
+				).append(
+					$('<a href="#" />').addClass('delete').html('&#x2715;').click(false).click(delete_tasklist)
+				)
 			).append(
-				$('<a href="#" />').addClass('add').html('&#xff0b;').click(false).click(add_task)
-			).append(
-				$('<h2 />').addClass('tltitle').html('New Tasklist').make_editable().click()
+				$('<h2 />').addClass('tltitle').make_editable().click()
 			)
 		)
 	);
 
 	$('.tasklists').animate({left: -($('.tasklist-column').length - 1) * $('.tasklist-view').width() + 'px'}, refresh_arrows);
+}
+
+
+function delete_tasklist(e) {
+	if (confirm('Delete entire tasklist?') == true) {
+		var $tlcolumn = $(this).closest('.tasklist-column');
+		var colwidth = $('.tasklist-view').width();
+		
+		$tlcolumn.css({width: colwidth + 'px', height: '1px'});
+		$(this).closest('.tasklist').fadeOut(250, function() {
+			if ($tlcolumn.index() == 0 && $('.tasklist-column').length > 1) {
+				$('.tasklists').animate({left: '-=' + colwidth + 'px'}, 250, function() {
+					$tlcolumn.remove();
+					$('.tasklists').css({left: '+=' + colwidth + 'px'});
+					refresh_arrows();
+				});
+				
+			} else {
+				$('.tasklists').animate({left: '+=' + colwidth + 'px'}, 250, function() {
+					$tlcolumn.remove();
+					refresh_arrows();
+				});
+			}
+		});
+		
+		do_request('delete_tasklist', {tasklist: $(this).get_tasklist_id()});
+	}
 }
 
 
@@ -273,11 +302,13 @@ function add_task(e) {
 			$('<div />').addClass('task').append(
 				$('<a>&nbsp;</a>').addClass('checkbox').click(false).click(toggle_checkboxes)
 			).append(
-				$('<a href="#" />').addClass('delete control').html('&#xd7;').click(false).click(delete_task)
-			).append(
-					$('<a href="#" />').addClass('notetoggle control').html('+').click(false).click(toggle_notes)
-			).append(
-					$('<a href="#" />').addClass('split control').html('s').click(false).click(split_task)
+				$('<div />').addClass('controls').append(
+					$('<a href="#" />').addClass('notetoggle').html('+').click(false).click(toggle_notes)
+				).append(
+					$('<a href="#" />').addClass('split').html('s').click(false).click(split_task)
+				).append(
+					$('<a href="#" />').addClass('remove').html('&#xd7;').click(false).click(remove_task)
+				)
 			).append(
 				$('<span />').addClass('tasktitle').make_editable().click()
 			)
@@ -286,14 +317,14 @@ function add_task(e) {
 }
 
 
-function delete_task(e) {
+function remove_task(e) {
 	var data = {
 		tasklist: $(this).get_tasklist_id(),
 		task: $(this).closest('.task').attr('id').slice(5),
 	};
 	$(this).closest('li').remove();
 	
-	do_request('delete_task', data);
+	do_request('remove_task', data);
 }
 
 

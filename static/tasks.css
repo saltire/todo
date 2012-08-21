@@ -19,10 +19,11 @@
 .tasklist-column { vertical-align: top; display: inline-block; }
 .tasklist { width: 500px; margin: 0 34px; padding: 20px 15px; border: 1px dotted #f1f1da;
 	font-size: 16px; white-space: normal; position: relative; }
-.tasklist .tltitle { border-bottom: 1px dotted #ffffff; margin: 0 10px; padding: 0 50px;
+.tasklist .tltitle { border-bottom: 1px dotted #ffffff; margin: 0 10px; padding: 0 60px;
 	font-size: 24px; text-align: center; }
-.tasklist > a { width: 18px; margin: 5px 7px 0 0; font-size: 15px; text-align: center;
-	line-height: 18px; float: right; }
+.tasklist > .controls { margin: 5px 7px 0 0; float: right; }
+.tasklist > .controls a { width: 18px; margin-left: 2px; font-size: 15px; text-align: center;
+	line-height: 18px; float: left; }
 .tasklist > ul { margin-top: 15px; }
 .tasklist ul { padding: 0; list-style-type: none; }
 .tasklist ul li { }
@@ -35,9 +36,10 @@
 .task .checkbox { width: 12px; margin-top: 3px; border: 1px solid #f1f1da;
 	text-align: center; line-height: 12px; float: left; }
 .task .checkbox:hover { cursor: pointer; }
-.task .control { width: 18px; text-align: center; line-height: 18px; float: right; display: none; }
-.task:hover .control { display: block; }
-.task .control:hover,
+.task .controls { float: right; display: none; }
+.task:hover .controls { display: block; }
+.task .controls a { width: 18px; margin-left: 2px; text-align: center; line-height: 18px; float: left; }
+.task .controls a:hover,
 .task .checkbox:hover { background: #ccccb8; }
 
 .task span { margin: 0 60px 0 25px; display: block; }
