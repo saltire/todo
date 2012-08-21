@@ -211,15 +211,17 @@ function create_new_tasklist(e) {
 			$('<div />').addClass('tasklist').append(
 				$('<div />').addClass('backg')
 			).append(
-				$('<div />').addClass('controls').append(
-					$('<a href="#" />').addClass('add').html('&#xff0b;').click(false).click(add_task)
+				$('<div />').addClass('titlebar').append(
+					$('<span />').addClass('tltitle').make_editable().click()
 				).append(
-					$('<a href="#" />').addClass('link').html('&para;')
-				).append(
-					$('<a href="#" />').addClass('delete').html('&#x2715;').click(false).click(delete_tasklist)
+					$('<div />').addClass('controls').append(
+						$('<a href="#" />').addClass('add').html('&#xff0b;').click(false).click(add_task)
+					).append(
+						$('<a href="#" />').addClass('link').html('&para;')
+					).append(
+						$('<a href="#" />').addClass('delete').html('&#x2715;').click(false).click(delete_tasklist)
+					)
 				)
-			).append(
-				$('<h2 />').addClass('tltitle').make_editable().click()
 			)
 		)
 	);
@@ -302,6 +304,8 @@ function add_task(e) {
 			$('<div />').addClass('task').append(
 				$('<a>&nbsp;</a>').addClass('checkbox').click(false).click(toggle_checkboxes)
 			).append(
+				$('<span />').addClass('tasktitle').make_editable().click()
+			).append(
 				$('<div />').addClass('controls').append(
 					$('<a href="#" />').addClass('notetoggle').html('+').click(false).click(toggle_notes)
 				).append(
@@ -309,8 +313,6 @@ function add_task(e) {
 				).append(
 					$('<a href="#" />').addClass('remove').html('&#xd7;').click(false).click(remove_task)
 				)
-			).append(
-				$('<span />').addClass('tasktitle').make_editable().click()
 			)
 		)
 	);
