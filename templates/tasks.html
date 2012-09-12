@@ -13,7 +13,7 @@
 	{% endif %}
 									<span class='tasktitle'>{{ task['title'] }}</span>
 									<div class='controls'>
-										<a class='notetoggle' href='#'>{% if task['notes'] %}&ndash;{% else %}+{% endif %}</a>
+										<a class='notetoggle' href='#'>{% if task['notes'] %}&#x25b4;{% else %}&#x25be;{% endif %}</a>
 										<a class='split' href='#'>s</a>
 										<a class='remove' href='#'>&#xd7;</a>
 									</div>
@@ -49,29 +49,40 @@
 			<div class='tasklist-view'>
 				<div class='tasklists'>
 {% for tasklist in lists %}
-					<div class='tasklist-column'>
 	{% if tasklist['start'] %}
-						<div id='tasklist-{{ tasklist["id"] }}' class='tasklist start'>
+					<div class='tasklist-column start'>
 	{% else %}
-						<div id='tasklist-{{ tasklist["id"] }}' class='tasklist'>
+					<div class='tasklist-column'>
 	{% endif %}
+	{% for sublist in tasklist['sublists'] %}
+		{% if sublist['sublist'] == True %}
+						<div id='sublist-{{ sublist["id"] }}' class='tasklist sublist' data-parent='{{ tasklist["id"] }}'>
+		{% else %}
+						<div id='tasklist-{{ tasklist["id"] }}' class='tasklist'>
+		{% endif %}
 							<div class='backg'></div>
+		{% if sublist != tasklist['sublists']|first %}
+							<div class='upnav'>
+								<a href='#'>&#x25b2;</a>
+							</div>	
+		{% endif %}
 							<div class='titlebar'>
-								<span class='tltitle'>{{ tasklist['title'] }}</span>
+								<span class='tltitle'>{{ sublist['title'] }}</span>
 								<div class='controls'>
 									<a class='add' href='#'>&#xff0b;</a>
-									<a class='link' href='{{ root }}/tasklist/{{ tasklist["id"] }}'>&para;</a>
+									<a class='link' href='{{ root }}/tasklist/{{ sublist["path"] }}'>&para;</a>
 									<a class='delete' href='#'>&#x2715;</a>
 								</div>
 							</div>
 							<ul>
-	{% for task in tasklist['items'] %}
+		{% for task in sublist['items'] %}
 								<li>
-						{{ draw_task(task) }}
+									{{ draw_task(task) }}
 								</li>
-	{% endfor %}
+		{% endfor %}
 							</ul>
 						</div>
+	{% endfor %}
 					</div>
 {% endfor %}
 				</div>

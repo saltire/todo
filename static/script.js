@@ -1,8 +1,8 @@
 $(function() {
 	
 	// scroll to the tasklist passed in the URL and given the 'start' class
-	if ($('.tasklist.start').length) {
-		var index = $('.tasklist.start').index('.tasklist');
+	if ($('.tasklist-column.start').length) {
+		var index = $('.tasklist-column.start').index();
 		$('.tasklists').css('left', -index * $('.tasklist-view').width() + 'px');
 	}
 	
@@ -310,7 +310,7 @@ function add_task(e) {
 				$('<span />').addClass('tasktitle').make_editable().click()
 			).append(
 				$('<div />').addClass('controls').append(
-					$('<a href="#" />').addClass('notetoggle').html('+').click(false).click(toggle_notes)
+					$('<a href="#" />').addClass('notetoggle').html('&#x25be;').click(false).click(toggle_notes)
 				).append(
 					$('<a href="#" />').addClass('split').html('s').click(false).click(split_task)
 				).append(
@@ -346,12 +346,12 @@ function toggle_notes(e) {
 			// show notes
 			$task.find('.tasknotes').slideDown(100);
 		}
-		$(this).html('&ndash;');
+		$(this).html('&#x25b4;');
 		
 	} else {
 		// hide notes
 		$task.find('.tasknotes').slideUp(100);
-		$(this).html('+');
+		$(this).html('&#x25be;');
 	}
 }
 
@@ -375,8 +375,8 @@ function split_task(e) {
 		).append(
 			$('<div />').addClass('controls').append(
 				$('<a href="#" />').addClass('add').html('&#xff0b;').click(false).click(add_task)
-			//).append(
-			//	$('<a />').addClass('link').attr('href', '#').html('&para;')
+			).append(
+				$('<a />').addClass('link').attr('href', $parent.find('.link').attr('href') + '/' + $taskid).html('&para;')
 			)
 		)
 	).append(

@@ -40,8 +40,9 @@ def callback():
 
 
 @app.route('/')
-@app.route('/tasklist/<tlid>')
-def index(tlid=None):
+@app.route('/tasklist/<path:tlids>')
+def index(tlids=''):
+    tlids = tlids.split('/')
     root = url_for('index').replace('/index.fcgi', '').rstrip('/')
     
     def get_child_tasks(tasks, rootid=None):
@@ -52,13 +53,46 @@ def index(tlid=None):
                 branch.append(task)
         return branch
     
+    
+    def find_task(tasklist, taskid):
+        for task in tasklist:
+            if task['id'] == taskid:
+                return task
+
+            elif task['children']:
+                child = find_task(task['children'], taskid)
+                if child is not None:
+                    return child
+                
+        return None
+        
+    
     # build a tree of tasks for each tasklist
     lists = []
     for tasklist in g.gtasks.do_request('tasklists.list').get('items', []):
-        if tlid == tasklist['id']:
+        print '$$$$$$$$$$$$$$$$$$$$$$$'
+        print tasklist
+        tasklist['sublists'] = [{
+            'id': tasklist['id'],
+            'path': tasklist['id'],
+            'title': tasklist['title'],
+            'items': get_child_tasks(g.gtasks.do_request('tasks.list', tasklist['id']).get('items', []))
+            }]
+
+        if tlids[0] == tasklist['id']:
             # flag to tell javascript to scroll straight to the position of this tasklist
             tasklist['start'] = True
-        tasklist['items'] = get_child_tasks(g.gtasks.do_request('tasks.list', tasklist['id']).get('items', []))
+            for tlid in tlids[1:]:
+                # add sublists if any have been specified in the URI
+                task = find_task(tasklist['sublists'][-1]['items'], tlid)
+                tasklist['sublists'].append({
+                    'id': task['id'],       
+                    'path': '/'.join((tasklist['sublists'][-1]['path'], task['id'])),
+                    'title': task['title'],
+                    'items': task['children'],
+                    'sublist': True
+                    })
+
         lists.append(tasklist)
         
     return render_template('tasks.html', lists=lists, root=root)
