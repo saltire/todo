@@ -14,7 +14,7 @@ app.secret_key = '\xf9\xeeV\x06~T\xc78j1C]\xfb\xddx\xad\xfb\xc8\xc5\x1b[g\x13%'
 def init_gtasks():
     client_id = '311996974047.apps.googleusercontent.com'
     client_secret = 'w-OafbM5XFHXEyctLaxjZ5W2'
-    callback_uri = url_for('callback', _external=True).replace('/index.fcgi', '')
+    callback_uri = url_for('callback', _external=True)
     g.gtasks = GTasks(client_id, client_secret, callback_uri)
     
     if request.endpoint != 'callback':
@@ -42,7 +42,7 @@ def callback():
 @app.route('/')
 @app.route('/tasklist/<tlid>')
 def index(tlid=None):
-    root = url_for('index').replace('/index.fcgi', '').rstrip('/')
+    root = url_for('index').rstrip('/')
     
     def get_child_tasks(tasks, rootid=None):
         branch = []
