@@ -1,12 +1,10 @@
-from requests_oauth2 import OAuth2
+import json
 
 import requests
-
-import json
+from requests_oauth2 import OAuth2
 
 
 class GTasks:
-    
     tasks_auth_uri = 'https://www.googleapis.com/auth/tasks'
     tasks_api_uri = 'https://www.googleapis.com/tasks/v1'
     methods = {
@@ -26,13 +24,17 @@ class GTasks:
         'tasklists.patch': ('patch', 'users/@me/lists/{0}', True),
         }
         
-    def __init__(self, client_id, client_secret, callback_uri):
+    def __init__(self, client_id, client_secret, callback_uri, logger=None):
         site = 'https://accounts.google.com'
         auth_uri = '/o/oauth2/auth'
         token_uri = '/o/oauth2/token'
         self.handler = OAuth2(client_id, client_secret, site, callback_uri, auth_uri, token_uri)
+
+        self.logger = logger
+        if self.logger is not None:
+            self.logger.debug('init gtasks logger')
         
-    
+        
     def get_authorize_uri(self):
         return self.handler.authorize_url(self.tasks_auth_uri, response_type='code')
         
@@ -46,7 +48,7 @@ class GTasks:
         self.token = token
     
     
-    def do_request(self, method, tasklist='', task='', params={}, body=''):
+    def do_request(self, method, tasklist='', task='', params={}, body='', logger=None):
         try:
             params['access_token'] = getattr(self, 'token')
         except AttributeError:
@@ -62,7 +64,10 @@ class GTasks:
             headers['content-length'] = str(len(body))
         
         response = getattr(requests, httpmethod)(uri, params=params, data=body, headers=headers)
-        rdata = response.json
+        if self.logger is not None:
+            self.logger.debug('got response: ', response)
+        
+        rdata = response.json()
         if rdata is not None:
             print '>>>', httpmethod, response.url, params, body
             print '<<<', response
@@ -73,5 +78,4 @@ class GTasks:
                 raise Exception('error {0}: {1}'.format(rdata['error']['code'], rdata['error']['message']))
 
         return rdata
-        
-        
+

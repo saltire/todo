@@ -10,30 +10,45 @@ app = Flask(__name__)
 app.secret_key = '\xf9\xeeV\x06~T\xc78j1C]\xfb\xddx\xad\xfb\xc8\xc5\x1b[g\x13%'
 
 
+@app.errorhandler(Exception)
+def error_handler(e):
+    app.logger.error('Uncaught {0}: {1}'.format(type(e).__name__, e.message))
+    return 'Encountered an error!'
+
+
 @app.before_request
 def init_gtasks():
+    app.logger.debug('received request: ' + request.path)
+    if request.endpoint == 'static':
+        return
+    
     client_id = '311996974047.apps.googleusercontent.com'
     client_secret = 'w-OafbM5XFHXEyctLaxjZ5W2'
     callback_uri = url_for('callback', _external=True)
-    g.gtasks = GTasks(client_id, client_secret, callback_uri)
-    
+    g.gtasks = GTasks(client_id, client_secret, callback_uri, logger=app.logger)
+
     if request.endpoint != 'callback':
         # check if token exists and has not expired
         if not session.get('token') or time.time() > session.get('expiry', 0):
-            return redirect(g.gtasks.get_authorize_uri())
+            auth_uri = g.gtasks.get_authorize_uri()
+            app.logger.debug('no token, redirecting to auth uri: ' + auth_uri)
+            return redirect(auth_uri)
         
+        app.logger.debug('token found in session')
         g.gtasks.set_access_token(session['token'])
     
 
 @app.route('/callback')
 def callback():
     code = request.args.get('code', '')
+    app.logger.debug('got callback, requesting new token')
     
     response = g.gtasks.get_access_token(code)
     if 'access_token' in response:
         # store token to make requests with it
         session['token'] = response['access_token']
         session['expiry'] = time.time() + response['expires_in'];
+        app.logger.debug('got new token, storing in session and redirecting to app index')
         return redirect(url_for('index'))
     else:
         return 'Not authorized!'
@@ -42,6 +57,8 @@ def callback():
 @app.route('/')
 @app.route('/tasklist/<tlid>')
 def index(tlid=None):
+    app.logger.debug('displaying index')
+    
     root = url_for('index').rstrip('/')
     
     def get_child_tasks(tasks, rootid=None):
