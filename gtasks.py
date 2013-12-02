@@ -23,7 +23,7 @@ class GTasks:
         'tasklists.delete': ('delete', 'users/@me/lists/{0}', False),
         'tasklists.patch': ('patch', 'users/@me/lists/{0}', True),
         }
-        
+
     def __init__(self, client_id, client_secret, callback_uri, logger=None):
         site = 'https://accounts.google.com'
         auth_uri = '/o/oauth2/auth'
@@ -33,27 +33,27 @@ class GTasks:
         self.logger = logger
         if self.logger is not None:
             self.logger.debug('init gtasks logger')
-        
-        
+
+
     def get_authorize_uri(self):
         return self.handler.authorize_url(self.tasks_auth_uri, response_type='code')
-        
+
 
     def get_access_token(self, code):
         response = self.handler.get_token(code, grant_type='authorization_code')
         return response
-    
-    
+
+
     def set_access_token(self, token):
         self.token = token
-    
-    
+
+
     def do_request(self, method, tasklist='', task='', params={}, body='', logger=None):
         try:
             params['access_token'] = getattr(self, 'token')
         except AttributeError:
             raise Exception('Not authenticated!')
-        
+
         httpmethod, uri, body_req = self.methods.get(method)
         uri = '{0}/{1}'.format(self.tasks_api_uri, uri.format(tasklist, task))
         headers = {}
@@ -62,20 +62,19 @@ class GTasks:
             body = json.dumps(body)
         if httpmethod == 'post':
             headers['content-length'] = str(len(body))
-        
+
         response = getattr(requests, httpmethod)(uri, params=params, data=body, headers=headers)
         if self.logger is not None:
             self.logger.debug('got response: ', response)
-        
+
         rdata = response.json()
         if rdata is not None:
             print '>>>', httpmethod, response.url, params, body
             print '<<<', response
             print rdata
             print '---'
-            
+
             if 'error' in rdata:
                 raise Exception('error {0}: {1}'.format(rdata['error']['code'], rdata['error']['message']))
 
         return rdata
-

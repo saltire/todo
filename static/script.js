@@ -452,4 +452,3 @@ function update_sort_order(e, ui) {
 	
 	do_request('move_task', data);
 }
-
