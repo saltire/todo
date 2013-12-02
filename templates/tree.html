@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>To-do Tree</title>
+	<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/angularjs/1.2.3/angular.min.js'></script>
+	<script type='text/javascript' src='static/app.js'></script>
+	<script type='text/javascript' src='static/taskcontroller.js'></script>
+</head>
+<body>
+	<div id='content' ng-app='TodoTree' ng-controller='Tasklists' ng-init='init()'>
+		<span ng-hide='tasklists !== null'>Loading...</span>
+		<ul>
+			<li ng-repeat='tasklist in tasklists'>
+				{{ tasklist.title }}
+				<ul>
+					<li ng-repeat='item in tasklist.items'>
+					{{ item.title }}
+					<ul tree></ul>
+					</li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+</body>
+</html>
